@@ -208,89 +208,6 @@ h2 { font-size: 1.02rem; }
 
   var duLieu = null, laViDu = false, theDang = "ky", kieuTh = "goi";
 
-  // ---- số liệu ví dụ (bịa, chỉ để thấy trang trông thế nào khi chưa mở hồ sơ) ----
-  var VI_DU = {
-    phien_ban: 1, cong_trinh: "Công trình ví dụ — Kho xưởng A",
-    ky_nay: { goi: "Kết cấu thép", dot: 2, ngay: "15/10/2026", tao_luc: "15/10/2026 16:20:05", da_ghi_nhan: true,
-      lan_nay: 324000000, tong_luy_ke: 750000000, tong_luy_ke_sau_thue: 810000000, thue_suat: 8, tam_ung: 216000000,
-      da_thanh_toan: 270000000, chua_thanh_toan: 0, gia_tri_hop_dong: 1500000000,
-      cac_ky_da_tra: [{ ky: 1, ngay: "20/09/2026", so_tien: 270000000 }], goi_bo: null,
-      dong: [
-        { noi_dung: "Gia công, lắp dựng cột thép", dv: "kg", kl_hd: 42000, kl_nay: 12600, tt_hd: 840000000, tt_nay: 252000000, con_lai: 252000000 },
-        { noi_dung: "Gia công, lắp dựng kèo thép", dv: "kg", kl_hd: 30000, kl_nay: 9000, tt_hd: 600000000, tt_nay: 180000000, con_lai: 270000000 },
-        { noi_dung: "Bu lông neo M24", dv: "bộ", kl_hd: 120, kl_nay: 0, tt_hd: 60000000, tt_nay: 0, con_lai: 0 }
-      ] },
-    tong_hop: {
-      hm: [
-        { ten: "HM01 — Nhà xưởng", bao_khach: 5200000000, gia_von: 4300000000, so_dot: 3, da_tt: 1020000000, con_lai: 3280000000 },
-        { ten: "HM02 — Văn phòng", bao_khach: 1800000000, gia_von: 1450000000, so_dot: 1, da_tt: 60000000, con_lai: 1390000000 }
-      ],
-      goi: [
-        { ten: "Kết cấu thép", bao_khach: null, gia_von: 1500000000, so_dot: 3, da_tt: 810000000, con_lai: 690000000 },
-        { ten: "Nhân công", bao_khach: null, gia_von: 1650000000, so_dot: 1, da_tt: 270000000, con_lai: 1380000000 },
-        { ten: "Tự thực hiện › Bê tông", bao_khach: null, gia_von: 2600000000, so_dot: 0, da_tt: 0, con_lai: 2600000000 }
-      ],
-      tong_hm: { gia_von: 5750000000, da_tt: 1080000000, con_lai: 4670000000, bao_khach: 7000000000, so_dot: 4 },
-      tong_goi: { gia_von: 5750000000, da_tt: 1080000000, con_lai: 4670000000, bao_khach: 7000000000, so_dot: 4 }
-    },
-    thanh_toan: { du_thao: 1, goi: [
-      { kieu: "goi", ten: "Kết cấu thép", gia_von: 1500000000, thue: 120000000, sau_thue: 1620000000, tam_ung: 216000000, so_dot: 3, da_tt: 810000000, con_lai: 810000000, du_thao: 0 },
-      { kieu: "goi", ten: "Nhân công", gia_von: 1650000000, thue: 132000000, sau_thue: 1782000000, tam_ung: 0, so_dot: 1, da_tt: 270000000, con_lai: 1512000000, du_thao: 1 },
-      { kieu: "bo", ten: "Tự thực hiện — CỘNG 1 gói con", gia_von: 2600000000, thue: 208000000, sau_thue: 2808000000, tam_ung: 0, so_dot: 0, da_tt: 0, con_lai: 2808000000, du_thao: 0 },
-      { kieu: "goi", ten: "Tự thực hiện › Bê tông", gia_von: 2600000000, thue: 208000000, sau_thue: 2808000000, tam_ung: 0, so_dot: 0, da_tt: 0, con_lai: 2808000000, du_thao: 0 }
-    ] },
-    khach: { goc: 7000000000, vat_goc: 560000000, pt: 0.08, tong_ps: 120000000, hien_hanh: 7120000000, vat_hien_hanh: 569600000,
-      ps: [{ ma: "PS01", noi_dung: "Phát sinh khách hàng — đợt 03 · Mái che bãi xe", ngay: "05/10/2026", truoc_thue: 120000000, vat: 9600000 }],
-      thu: [{ noi_dung: "Tạm ứng hợp đồng 30%", ngay: "01/08/2026", truoc_thue: 2100000000, vat: 168000000, tong: 2268000000 }],
-      da_thu: 2100000000 },
-    nhat_ky_gia_von: { dau: 5700000000, cuoi: 5750000000, ds: [
-      { so: 0, thoi_diem: "01/08/2026 09:00", nguon: "giá vốn cơ bản", pham_vi: "toàn bộ", ly_do: "giá vốn lần đầu", truoc: null, sau: 5700000000, chenh: null },
-      { so: 1, thoi_diem: "02/09/2026 14:10", nguon: "Hợp đồng nhà thầu phụ", pham_vi: "Kết cấu thép", ly_do: "ký hợp đồng", truoc: 5700000000, sau: 5750000000, chenh: 50000000 }
-    ] },
-    nhat_ky_thanh_toan: { tong: 1080000000, ds: [
-      { luc: "20/09/2026 10:02", goi: "Kết cấu thép", dot: 1, loai: "Thanh toán", tien: 270000000, ghi_chu: "" },
-      { luc: "25/09/2026 15:30", goi: "Nhân công", dot: 1, loai: "Thanh toán", tien: 270000000, ghi_chu: "" },
-      { luc: "15/10/2026 16:20", goi: "Kết cấu thép", dot: 2, loai: "Thanh toán", tien: 324000000, ghi_chu: "" }
-    ] }
-  };
-  // Bảng ví dụ cho phần 1–6 (bịa) — cùng dạng mobile.json thật: các bảng chụp từ màn hình máy tính
-  (function () {
-    var T = function (v) { return v == null ? "" : fmt.format(v); };
-    VI_DU.phan = [
-      { ma: "1", ten: "1 · Số liệu ban đầu", ghi_chu: ["Giá vốn LẦN ĐẦU (đọc từ hai file lúc ghi lần đầu). Giá vốn mới nhất xem ở phần 3."], bang: [
-        { ten: "Theo hạng mục", cot: [["Mã HM", "c"], ["Hạng mục", "w"], ["Giá báo khách", "e"], ["Giá vốn", "e"], ["Chênh lệch", "e"]],
-          dong: [["HM01", "Nhà xưởng", T(5200000000), T(4280000000), T(920000000)], ["HM02", "Văn phòng", T(1800000000), T(1420000000), T(380000000)],
-                 ["", "CỘNG", T(7000000000), T(5700000000), T(1300000000)]], tag: [[], [], ["tong"]], khoa: ["hm1:HM01", null, null] }] },
-      { ma: "2", ten: "2 · Thanh toán chủ đầu tư", ghi_chu: ["Giá trị hợp đồng với khách hiện hành (trước thuế): " + T(7120000000) + " đ"], bang: [
-        { ten: "Các lần chủ đầu tư thanh toán", cot: [["STT", "c"], ["Nội dung thanh toán", "w"], ["Ngày thanh toán", "c"], ["Số tiền trước thuế", "e"], ["Thuế VAT", "e"], ["Tổng", "e"]],
-          dong: [["", "GIÁ TRỊ HỢP ĐỒNG VỚI KHÁCH BAN ĐẦU", "", T(7000000000), T(560000000), T(7560000000)], ["PS01", "Phát sinh khách hàng — đợt 03 · Mái che bãi xe", "05/10/2026", T(120000000), T(9600000), T(129600000)],
-                 ["1", "Tạm ứng hợp đồng 30%", "01/08/2026", T(2100000000), T(168000000), T(2268000000)], ["", "CỘNG ĐÃ THU", "", T(2100000000), T(168000000), T(2268000000)]],
-          tag: [["tong"], ["mo"], [], ["tong"]] }] },
-      { ma: "3", ten: "3 · Giá vốn theo gói thầu", ghi_chu: [], bang: [
-        { ten: "Theo gói thầu", cot: [["Gói thầu", "w"], ["Hạng mục", "w"], ["Số dòng", "e"], ["Giá vốn lần đầu", "e"], ["Giá vốn hiện hành", "e"], ["Chênh", "e"], ["Trạng thái", "w"]],
-          dong: [["Kết cấu thép", "HM01, HM02", "12", T(1450000000), T(1500000000), T(50000000), "đã có hợp đồng"], ["Nhân công", "HM01, HM02", "48", T(1650000000), T(1650000000), "", "giá vốn gốc"],
-                 ["CỘNG CÁC GÓI", "", "", T(5700000000), T(5750000000), T(50000000), ""]], tag: [[], [], ["tong"]], khoa: ["goi:Kết cấu thép", null, null] }] },
-      { ma: "5", ten: "5 · Thanh toán nhà thầu", ghi_chu: [], bang: [
-        { ten: "Các gói thầu", cot: [["Gói thầu", "w"], ["Giá trị giá vốn", "e"], ["Giá trị sau thuế", "e"], ["Đã thanh toán", "e"], ["Còn lại", "e"], ["% đã trả", "e"]],
-          dong: [["Kết cấu thép", T(1500000000), T(1620000000), T(810000000), T(810000000), "50,0%"], ["Nhân công", T(1650000000), T(1782000000), T(270000000), T(1512000000), "15,2%"]],
-          tag: [[], ["am"]], khoa: ["tt:Kết cấu thép", null] }] },
-      { ma: "6", ten: "6 · Tổng hợp", ghi_chu: [], bang: [
-        { ten: "Theo gói thầu", cot: [["Hạng mục / gói thầu", "w"], ["Giá vốn", "e"], ["Số đợt thanh toán", "c"], ["Đã thanh toán", "e"], ["Còn lại", "e"]],
-          dong: [["Kết cấu thép", T(1500000000), "3", T(810000000), T(690000000)], ["Nhân công", T(1650000000), "1", T(270000000), T(1380000000)], ["TỔNG", T(5750000000), "4", T(1080000000), T(4670000000)]],
-          tag: [[], [], ["tong"]], khoa: ["tt:Kết cấu thép", null, null] }] }
-    ];
-    var DONG_GOI = { ten: "Dòng giá vốn của gói (chỉ phần thuộc gói này)", cot: [["Mã dòng", "w"], ["Nội dung", "w"], ["ĐV", "c"], ["Khối lượng", "e"], ["ĐG vật liệu", "e"], ["Thành tiền", "e"]],
-      dong: [["HM01-120", "Gia công, lắp dựng cột thép", "kg", "42.000,000", T(20000), T(840000000)], ["HM01-121", "Gia công, lắp dựng kèo thép", "kg", "30.000,000", T(20000), T(600000000)],
-             ["HM02-088", "Bu lông neo M24", "bộ", "120,000", T(500000), T(60000000)], ["", "CỘNG 3 dòng", "", "", "", T(1500000000)]], tag: [[], [], [], ["tong"]] };
-    VI_DU.chi_tiet = {
-      "goi:Kết cấu thép": { ten: "Kết cấu thép", ghi_chu: "Giá vốn HIỆN HÀNH của gói thầu.", bang: [DONG_GOI] },
-      "tt:Kết cấu thép": { ten: "Kết cấu thép", ghi_chu: "Thanh toán nhà thầu — thuế suất gói 8%.", bang: [
-        { ten: "Các đợt thanh toán", cot: [["Đợt", "c"], ["Ngày", "c"], ["Lũy kế KL (trước thuế)", "e"], ["Thanh toán kỳ này", "e"], ["Trạng thái", "w"]],
-          dong: [["01", "20/09/2026", T(250000000), T(270000000), "đã thanh toán"], ["02", "15/10/2026", T(750000000), T(324000000), "đã thanh toán"]] }, DONG_GOI] },
-      "hm1:HM01": { ten: "HM01 — Nhà xưởng", ghi_chu: "Dòng công việc của hạng mục — giá vốn lần đầu.", bang: [DONG_GOI] }
-    };
-  })();
-
   var CAC_THE = [["ky", "Kỳ này"], ["1", "1 · Số liệu"], ["2", "2 · Chủ đầu tư"], ["3", "3 · Giá vốn"],
     ["4", "4 · Điều chỉnh"], ["5", "5 · Thanh toán"], ["6", "6 · Tổng hợp"], ["nk", "Nhật ký"]];
   var $ = function (id) { return document.getElementById(id); };
@@ -308,16 +225,16 @@ h2 { font-size: 1.02rem; }
       '<div class="nho">Hồ sơ gói <b>' + e(k.goi || "") + "</b> · đợt " + dot + (k.ngay ? " ngày " + e(k.ngay) : "") +
       (k.tao_luc ? " · lập lúc " + e(k.tao_luc) : "") + "</div>" +
       (laViDu ? '<div class="nho">Chưa mở hồ sơ nào. Bấm “Mở file zip” và chọn file zip thanh toán nhận qua Zalo / email (lưu vào Tệp / File trước).</div>' : "") +
-      (!laViDu && duLieu._nho ? '<div class="nho">Đang hiện hồ sơ mở lần trước. <button class="nut phu" id="quen" type="button">Xóa khỏi máy này</button></div>' : "");
+      '<div><button class="nut phu" id="quen" type="button">✕ Đóng hồ sơ</button></div>';
     var q = $("quen");
-    if (q) q.onclick = function () { try { localStorage.removeItem(KHOA_NHO); } catch (x) {} batDau(); };
+    if (q) q.onclick = function () { batDau(); };
   }
 
   function veThe() {
     $("cac-the").innerHTML = CAC_THE.map(function (t) {
       return '<button class="the" role="tab" type="button" id="the-' + t[0] + '" aria-selected="' + (t[0] === theDang) + '">' + t[1] + "</button>";
     }).join("");
-    CAC_THE.forEach(function (t) { $("the-" + t[0]).onclick = function () { theDang = t[0]; chiTiet = []; loc = ""; veThe(); veTrang(); try { localStorage.setItem("so-tt-the", t[0]); } catch (x) {} }; });
+    CAC_THE.forEach(function (t) { $("the-" + t[0]).onclick = function () { theDang = t[0]; chiTiet = []; loc = ""; veThe(); veTrang(); }; });
   }
 
   function chuaCo(ten) { return '<div class="ds"><div class="trong">Hồ sơ này lập bằng bản chương trình cũ nên chưa có phần “' + ten + '”. Lập lại hồ sơ bằng bản mới để xem.</div></div>'; }
@@ -504,7 +421,6 @@ h2 { font-size: 1.02rem; }
       theDang = "ky";
       hien(d, false);
       if (!d.phan) bao("Hồ sơ lập bằng bản chương trình cũ: chưa có đủ các phần 1–6. Xuất lại hồ sơ bằng bản mới để xem đầy đủ.", "vang");
-      try { localStorage.setItem(KHOA_NHO, JSON.stringify(d)); } catch (x) {}
     }).catch(function (err) {
       bao(err && err.message === "khong-phai-ho-so"
         ? "File “" + e(file.name) + "” không phải hồ sơ thanh toán của chương trình (không có thong_tin.json). Chọn file zip trong thư mục XIN THANH TOAN."
@@ -514,11 +430,26 @@ h2 { font-size: 1.02rem; }
 
   $("o-file").addEventListener("change", function (ev) { docFile(ev.target.files && ev.target.files[0]); ev.target.value = ""; });
 
+  // Người dùng báo 19/10/2026: mở link thấy SỐ LIỆU CŨ (hồ sơ nhớ từ lần trước / bảng ví dụ) -> mở trang
+  // là trang TRỐNG, chỉ hiện số liệu của file zip vừa chọn; không nhớ hồ sơ trên máy nữa.
+  function veTrong() {
+    duLieu = null; chiTiet = [];
+    bao("");
+    $("ho-so").innerHTML =
+      '<div class="ten-ct">Chưa mở hồ sơ nào</div>' +
+      '<div class="nho">Bấm <b>📂 Mở file zip</b> rồi chọn file zip thanh toán (chương trình trên máy tính xuất ra, nhận qua Zalo / email). ' +
+      'Trên điện thoại / iPad: lưu file vào Tệp (Files) trước.</div>' +
+      '<div class="nho">Trang chỉ hiện số liệu của file vừa chọn — đóng trang là hết, không lưu lại trên máy.</div>' +
+      '<div class="nho">Muốn SỬA số liệu: mở file zip bằng chương trình trên máy tính → phần 6 · Tổng hợp → “📥 Nhận hồ sơ về máy này…”.</div>' +
+      '<div><label class="nut" for="o-file">📂 Mở file zip</label></div>';
+    $("cac-the").innerHTML = "";
+    $("noi-dung").innerHTML = "";
+  }
+
   function batDau() {
-    var cu = null;
-    try { cu = JSON.parse(localStorage.getItem(KHOA_NHO) || "null"); } catch (x) { cu = null; }
-    try { var t = localStorage.getItem("so-tt-the"); if (t) theDang = t; } catch (x) {}
-    if (cu) { cu._nho = true; hien(cu, false); } else { hien(VI_DU, true); }
+    // xoa ho so da nho cua ban truoc (de khong bao gio hien so lieu cu)
+    try { localStorage.removeItem(KHOA_NHO); localStorage.removeItem("so-tt-the"); } catch (x) {}
+    veTrong();
   }
   batDau();
 })();
