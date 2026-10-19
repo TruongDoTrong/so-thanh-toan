@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sổ thanh toán">
+<meta name="theme-color" content="#0c6a7a">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}[hidden]{display:none!important}</style>
+<title>Sổ thanh toán công trình</title>
+<style>
+/* Font: CHI dung font co san cua may (iPhone/iPad: San Francisco, Android: Roboto, Windows: Segoe UI) - du dau
+   tieng Viet. Font tai tu Google Fonts bi loi dau tren dien thoai (nguoi dung bao 19/10/2026). */
+/* Bố cục: một cột hẹp như sổ tay — dải hồ sơ ở trên, thẻ chuyển trang dính phía trên, mỗi trang là danh sách dòng tiền */
+:root {
+  --nen: #f3f5f4;
+  --mat: #ffffff;
+  --muc: #1b2a30;
+  --phu: #5b6b70;
+  --vien: #dde3e2;
+  --nhan: #0c6a7a;
+  --nhan-nhat: #e1f0f1;
+  --da-tra: #2c7a4b;
+  --canh-bao: #a35a12;
+  --canh-bao-nen: #fbefdf;
+  --loi: #b3261e;
+  --loi-nen: #fbe7e5;
+  --thanh: #e6ebea;
+  --chu-chinh: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --chu-tieu-de: var(--chu-chinh);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --nen: #111a1d; --mat: #182327; --muc: #e4ecec; --phu: #93a5a8; --vien: #2a393d;
+    --nhan: #5cc3d1; --nhan-nhat: #173a40; --da-tra: #6fcf97; --canh-bao: #f0b26b; --canh-bao-nen: #3a2a17;
+    --loi: #f2948b; --loi-nen: #3d1d1a; --thanh: #26353a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --nen: #111a1d; --mat: #182327; --muc: #e4ecec; --phu: #93a5a8; --vien: #2a393d;
+  --nhan: #5cc3d1; --nhan-nhat: #173a40; --da-tra: #6fcf97; --canh-bao: #f0b26b; --canh-bao-nen: #3a2a17;
+  --loi: #f2948b; --loi-nen: #3d1d1a; --thanh: #26353a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--nen); color: var(--muc); font-family: var(--chu-chinh); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 40px;
+}
+.khung { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.so { font-variant-numeric: tabular-nums; white-space: nowrap; }
+h1, h2, h3 { font-family: var(--chu-tieu-de); font-weight: 600; text-wrap: balance; margin: 0; }
+h1 { font-size: 1.15rem; }
+h2 { font-size: 1.02rem; }
+.dau { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.nho { font-size: .82rem; color: var(--phu); }
+.nut {
+  font: inherit; font-weight: 600; font-size: .9rem; border-radius: 10px; padding: 9px 14px; cursor: pointer;
+  border: 1px solid var(--nhan); background: var(--nhan); color: var(--mat);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.nut.phu { background: transparent; color: var(--nhan); }
+.nut:focus-visible, .the:focus-visible, .chon button:focus-visible { outline: 3px solid var(--nhan); outline-offset: 2px; }
+#o-file { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+.ho-so { background: var(--mat); border: 1px solid var(--vien); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.ho-so .ten-ct { font-family: var(--chu-tieu-de); font-size: 1.05rem; font-weight: 600; }
+.nhan-trang-thai { display: inline-block; font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
+.tt-da { background: var(--nhan-nhat); color: var(--da-tra); }
+.tt-xin { background: var(--canh-bao-nen); color: var(--canh-bao); }
+.tt-vd { background: var(--thanh); color: var(--phu); }
+.bao { border-radius: 12px; padding: 10px 12px; font-size: .9rem; }
+.bao.loi { background: var(--loi-nen); color: var(--loi); }
+.bao.vang { background: var(--canh-bao-nen); color: var(--canh-bao); }
+
+.cac-the {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--nen);
+  display: flex; gap: 4px; overflow-x: auto; padding-block: 6px; scrollbar-width: none;
+}
+.cac-the::-webkit-scrollbar { display: none; }
+.the {
+  font: inherit; font-size: .88rem; font-weight: 600; white-space: nowrap; cursor: pointer;
+  border: 1px solid var(--vien); background: var(--mat); color: var(--phu); border-radius: 999px; padding: 7px 13px;
+}
+.the[aria-selected="true"] { background: var(--muc); border-color: var(--muc); color: var(--nen); }
+
+.trang { display: flex; flex-direction: column; gap: 12px; }
+.tong { background: var(--mat); border: 1px solid var(--vien); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+.so-lon { font-family: var(--chu-tieu-de); font-size: 1.7rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.so-lon small { font-size: .9rem; font-weight: 500; color: var(--phu); }
+.cap { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.cap > span:first-child { min-width: 0; color: var(--phu); }
+.cap.dam > span { color: var(--muc); font-weight: 700; }
+.cap.ke { border-top: 1px dashed var(--vien); padding-top: 6px; }
+.am { color: var(--loi) !important; }
+
+.ds { background: var(--mat); border: 1px solid var(--vien); border-radius: 14px; overflow: hidden; }
+.dong { padding: 12px 14px; border-top: 1px solid var(--vien); display: flex; flex-direction: column; gap: 5px; }
+.dong:first-child { border-top: 0; }
+.dong .ten { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.dong.nhom { background: var(--nhan-nhat); }
+.dong.du-thao { box-shadow: inset 4px 0 0 var(--canh-bao); }
+.thanh { height: 6px; background: var(--thanh); border-radius: 99px; overflow: hidden; }
+.thanh > i { display: block; height: 100%; background: var(--da-tra); border-radius: 99px; }
+.luoi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 10px; font-size: .85rem; }
+.luoi div { min-width: 0; }
+.luoi b { display: block; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.luoi span { color: var(--phu); font-size: .75rem; }
+.chip { font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--canh-bao-nen); color: var(--canh-bao); white-space: nowrap; }
+.chon { display: inline-flex; background: var(--thanh); border-radius: 10px; padding: 3px; gap: 3px; }
+.chon button { font: inherit; font-size: .85rem; font-weight: 600; border: 0; background: transparent; color: var(--phu); padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+.chon button[aria-pressed="true"] { background: var(--mat); color: var(--muc); }
+.chu-thich { font-size: .8rem; color: var(--phu); }
+.trong { text-align: center; padding: 22px 14px; color: var(--phu); }
+@media (prefers-reduced-motion: no-preference) { .thanh > i { transition: width .4s ease; } }
+@media (max-width: 380px) { .luoi { grid-template-columns: repeat(2, minmax(0, 1fr)); } .so-lon { font-size: 1.45rem; } }
+</style>
+</head>
+<body>
+<div class="khung">
+  <header class="dau">
+    <div>
+      <h1>Sổ thanh toán công trình</h1>
+      <div class="nho">Xem hồ sơ zip thanh toán trên điện thoại · chỉ xem</div>
+    </div>
+    <label class="nut" for="o-file">📂 Mở file zip</label>
+    <input id="o-file" type="file" accept=".zip,application/zip,application/x-zip-compressed">
+  </header>
+
+  <div id="bao"></div>
+  <section id="ho-so" class="ho-so" aria-live="polite"></section>
+  <nav class="cac-the" id="cac-the" role="tablist" aria-label="Các phần"></nav>
+  <main id="noi-dung" class="trang"></main>
+  <p class="chu-thich">File zip được đọc ngay trên điện thoại này, không gửi đi đâu. Số trên trang là số chương trình
+    trên máy tính đã tính lúc xuất hồ sơ.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var KHOA_NHO = "so-tt-ho-so-gan-nhat";
+  var fmt = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 });
+  var fmtKl = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 3 });
+  function tien(v) { return v == null || v === "" ? "—" : fmt.format(Math.round(Number(v))); }
+  function kl(v) { return v == null ? "—" : fmtKl.format(Number(v)); }
+  function gon(v) {
+    v = Number(v) || 0; var a = Math.abs(v);
+    if (a >= 1e9) return (v / 1e9).toLocaleString("vi-VN", { maximumFractionDigits: 2 }) + " tỷ";
+    if (a >= 1e6) return (v / 1e6).toLocaleString("vi-VN", { maximumFractionDigits: 1 }) + " tr";
+    return fmt.format(Math.round(v));
+  }
+  function phanTram(a, b) { return b ? Math.max(0, Math.min(100, a / b * 100)) : 0; }
+  function pt(a, b) { return b ? (a / b * 100).toLocaleString("vi-VN", { maximumFractionDigits: 1 }) + "%" : ""; }
+  function e(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function cap(nhan, giaTri, lop) { return '<div class="cap ' + (lop || "") + '"><span>' + e(nhan) + '</span><span class="so">' + giaTri + "</span></div>"; }
+  function thanh(a, b) { return '<div class="thanh" aria-hidden="true"><i style="width:' + phanTram(a, b).toFixed(1) + '%"></i></div>'; }
+  function o(nhan, giaTri, lop) { return '<div><span>' + e(nhan) + '</span><b class="' + (lop || "") + '">' + giaTri + "</b></div>"; }
+
+  // Làm tròn như Excel (0,5 lên) — chỉ dùng cho hồ sơ cũ chưa có mobile.json
+  function lamTron(x) { return x < 0 ? -Math.round(-x) : Math.round(x); }
+  function tienBaPhan(k, a, b, c) { return lamTron(k * a) + lamTron(k * b) + lamTron(k * c); }
+
+  var duLieu = null, laViDu = false, theDang = "ky", kieuTh = "goi";
+
+  // ---- số liệu ví dụ (bịa, chỉ để thấy trang trông thế nào khi chưa mở hồ sơ) ----
+  var VI_DU = {
+    phien_ban: 1, cong_trinh: "Công trình ví dụ — Kho xưởng A",
+    ky_nay: { goi: "Kết cấu thép", dot: 2, ngay: "15/10/2026", tao_luc: "15/10/2026 16:20:05", da_ghi_nhan: true,
+      lan_nay: 324000000, tong_luy_ke: 750000000, tong_luy_ke_sau_thue: 810000000, thue_suat: 8, tam_ung: 216000000,
+      da_thanh_toan: 270000000, chua_thanh_toan: 0, gia_tri_hop_dong: 1500000000,
+      cac_ky_da_tra: [{ ky: 1, ngay: "20/09/2026", so_tien: 270000000 }], goi_bo: null,
+      dong: [
+        { noi_dung: "Gia công, lắp dựng cột thép", dv: "kg", kl_hd: 42000, kl_nay: 12600, tt_hd: 840000000, tt_nay: 252000000, con_lai: 252000000 },
+        { noi_dung: "Gia công, lắp dựng kèo thép", dv: "kg", kl_hd: 30000, kl_nay: 9000, tt_hd: 600000000, tt_nay: 180000000, con_lai: 270000000 },
+        { noi_dung: "Bu lông neo M24", dv: "bộ", kl_hd: 120, kl_nay: 0, tt_hd: 60000000, tt_nay: 0, con_lai: 0 }
+      ] },
+    tong_hop: {
+      hm: [
+        { ten: "HM01 — Nhà xưởng", bao_khach: 5200000000, gia_von: 4300000000, so_dot: 3, da_tt: 1020000000, con_lai: 3280000000 },
+        { ten: "HM02 — Văn phòng", bao_khach: 1800000000, gia_von: 1450000000, so_dot: 1, da_tt: 60000000, con_lai: 1390000000 }
+      ],
+      goi: [
+        { ten: "Kết cấu thép", bao_khach: null, gia_von: 1500000000, so_dot: 3, da_tt: 810000000, con_lai: 690000000 },
+        { ten: "Nhân công", bao_khach: null, gia_von: 1650000000, so_dot: 1, da_tt: 270000000, con_lai: 1380000000 },
+        { ten: "Tự thực hiện › Bê tông", bao_khach: null, gia_von: 2600000000, so_dot: 0, da_tt: 0, con_lai: 2600000000 }
+      ],
+      tong_hm: { gia_von: 5750000000, da_tt: 1080000000, con_lai: 4670000000, bao_khach: 7000000000, so_dot: 4 },
+      tong_goi: { gia_von: 5750000000, da_tt: 1080000000, con_lai: 4670000000, bao_khach: 7000000000, so_dot: 4 }
+    },
+    thanh_toan: { du_thao: 1, goi: [
+      { kieu: "goi", ten: "Kết cấu thép", gia_von: 1500000000, thue: 120000000, sau_thue: 1620000000, tam_ung: 216000000, so_dot: 3, da_tt: 810000000, con_lai: 810000000, du_thao: 0 },
+      { kieu: "goi", ten: "Nhân công", gia_von: 1650000000, thue: 132000000, sau_thue: 1782000000, tam_ung: 0, so_dot: 1, da_tt: 270000000, con_lai: 1512000000, du_thao: 1 },
+      { kieu: "bo", ten: "Tự thực hiện — CỘNG 1 gói con", gia_von: 2600000000, thue: 208000000, sau_thue: 2808000000, tam_ung: 0, so_dot: 0, da_tt: 0, con_lai: 2808000000, du_thao: 0 },
+      { kieu: "goi", ten: "Tự thực hiện › Bê tông", gia_von: 2600000000, thue: 208000000, sau_thue: 2808000000, tam_ung: 0, so_dot: 0, da_tt: 0, con_lai: 2808000000, du_thao: 0 }
+    ] },
+    khach: { goc: 7000000000, vat_goc: 560000000, pt: 0.08, tong_ps: 120000000, hien_hanh: 7120000000, vat_hien_hanh: 569600000,
+      ps: [{ ma: "PS01", noi_dung: "Phát sinh khách hàng — đợt 03 · Mái che bãi xe", ngay: "05/10/2026", truoc_thue: 120000000, vat: 9600000 }],
+      thu: [{ noi_dung: "Tạm ứng hợp đồng 30%", ngay: "01/08/2026", truoc_thue: 2100000000, vat: 168000000, tong: 2268000000 }],
+      da_thu: 2100000000 },
+    nhat_ky_gia_von: { dau: 5700000000, cuoi: 5750000000, ds: [
+      { so: 0, thoi_diem: "01/08/2026 09:00", nguon: "giá vốn cơ bản", pham_vi: "toàn bộ", ly_do: "giá vốn lần đầu", truoc: null, sau: 5700000000, chenh: null },
+      { so: 1, thoi_diem: "02/09/2026 14:10", nguon: "Hợp đồng nhà thầu phụ", pham_vi: "Kết cấu thép", ly_do: "ký hợp đồng", truoc: 5700000000, sau: 5750000000, chenh: 50000000 }
+    ] },
+    nhat_ky_thanh_toan: { tong: 1080000000, ds: [
+      { luc: "20/09/2026 10:02", goi: "Kết cấu thép", dot: 1, loai: "Thanh toán", tien: 270000000, ghi_chu: "" },
+      { luc: "25/09/2026 15:30", goi: "Nhân công", dot: 1, loai: "Thanh toán", tien: 270000000, ghi_chu: "" },
+      { luc: "15/10/2026 16:20", goi: "Kết cấu thép", dot: 2, loai: "Thanh toán", tien: 324000000, ghi_chu: "" }
+    ] }
+  };
+
+  var CAC_THE = [["ky", "Kỳ này"], ["th", "Tổng hợp"], ["goi", "Gói thầu"], ["khach", "Khách trả"], ["nk", "Nhật ký"]];
+  var $ = function (id) { return document.getElementById(id); };
+
+  function bao(chu, lop) { $("bao").innerHTML = chu ? '<div class="bao ' + (lop || "loi") + '">' + chu + "</div>" : ""; }
+
+  function veHoSo() {
+    var k = duLieu.ky_nay || {};
+    var nhan = laViDu ? '<span class="nhan-trang-thai tt-vd">Số liệu ví dụ</span>'
+      : k.da_ghi_nhan === false ? '<span class="nhan-trang-thai tt-xin">Xin thanh toán · chưa trả</span>'
+      : '<span class="nhan-trang-thai tt-da">Đã thanh toán</span>';
+    var dot = k.dot != null ? String(k.dot).padStart(2, "0") : "";
+    $("ho-so").innerHTML =
+      '<div class="dau"><span class="ten-ct">' + e(duLieu.cong_trinh || "(không rõ công trình)") + "</span>" + nhan + "</div>" +
+      '<div class="nho">Hồ sơ gói <b>' + e(k.goi || "") + "</b> · đợt " + dot + (k.ngay ? " ngày " + e(k.ngay) : "") +
+      (k.tao_luc ? " · lập lúc " + e(k.tao_luc) : "") + "</div>" +
+      (laViDu ? '<div class="nho">Chưa mở hồ sơ nào. Bấm “Mở file zip” và chọn file zip thanh toán nhận qua Zalo / email (lưu vào Tệp / File trước).</div>' : "") +
+      (!laViDu && duLieu._nho ? '<div class="nho">Đang hiện hồ sơ mở lần trước. <button class="nut phu" id="quen" type="button">Xóa khỏi máy này</button></div>' : "");
+    var q = $("quen");
+    if (q) q.onclick = function () { try { localStorage.removeItem(KHOA_NHO); } catch (x) {} batDau(); };
+  }
+
+  function veThe() {
+    $("cac-the").innerHTML = CAC_THE.map(function (t) {
+      return '<button class="the" role="tab" type="button" id="the-' + t[0] + '" aria-selected="' + (t[0] === theDang) + '">' + t[1] + "</button>";
+    }).join("");
+    CAC_THE.forEach(function (t) { $("the-" + t[0]).onclick = function () { theDang = t[0]; veThe(); veTrang(); try { localStorage.setItem("so-tt-the", t[0]); } catch (x) {} }; });
+  }
+
+  function chuaCo(ten) { return '<div class="ds"><div class="trong">Hồ sơ này lập bằng bản chương trình cũ nên chưa có phần “' + ten + '”. Lập lại hồ sơ bằng bản mới để xem.</div></div>'; }
+
+  function trangKyNay() {
+    var k = duLieu.ky_nay;
+    if (!k) return chuaCo("Kỳ này");
+    var lkSt = k.tong_luy_ke_sau_thue != null ? k.tong_luy_ke_sau_thue : k.tong_luy_ke;
+    var h = '<div class="tong">' +
+      '<div class="nho">' + (k.da_ghi_nhan === false ? "Xin thanh toán kỳ này" : "Thanh toán kỳ này") + "</div>" +
+      '<div class="so-lon">' + tien(k.lan_nay) + " <small>đ</small></div>" +
+      cap("Giá trị gói (giá vốn, trước thuế)", tien(k.gia_tri_hop_dong)) +
+      cap("Lũy kế khối lượng, trước thuế", tien(k.tong_luy_ke)) +
+      (k.thue_suat != null ? cap("Lũy kế sau thuế (VAT " + kl(k.thue_suat) + "%)", tien(lkSt)) : "") +
+      cap("Tạm ứng", tien(k.tam_ung), "ke");
+    (k.cac_ky_da_tra || []).forEach(function (x) { h += cap("Đã trả kỳ " + x.ky + (x.ngay ? " (" + x.ngay + ")" : ""), tien(x.so_tien)); });
+    h += cap("Kỳ này", tien(k.lan_nay)) +
+      cap("Chưa thanh toán", tien(k.chua_thanh_toan), "dam ke" + (k.chua_thanh_toan < -0.5 ? " am" : "")) + "</div>";
+    if (k.goi_bo) {
+      var b = k.goi_bo;
+      h += "<h2>Gói bố “" + e(b.cha) + "”</h2><div class=\"ds\">";
+      b.con.forEach(function (c) {
+        h += '<div class="dong"><div class="dau"><span class="ten">' + e(c.ten_ngan || c.ten) + "</span>" + (c.la_goi_nay ? '<span class="chip">gói này</span>' : "") + "</div>" +
+          thanh(c.da_tt, c.gia_tri) + '<div class="luoi">' + o("Giá trị", tien(c.gia_tri)) + o("Đã trả", tien(c.da_tt)) + o("Còn lại", tien(c.con_lai)) + "</div></div>";
+      });
+      h += '<div class="dong nhom"><div class="ten">Cộng gói bố</div><div class="luoi">' + o("Giá trị", tien(b.gia_tri)) + o("Đã trả", tien(b.da_tt)) + o("Còn lại", tien(b.con_lai)) + "</div></div></div>";
+    }
+    var dong = (k.dong || []).filter(function (x) { return x.kl_nay || x.tt_nay; });
+    h += "<h2>Công việc thanh toán kỳ này · " + dong.length + " / " + (k.dong || []).length + " dòng</h2>";
+    if (!dong.length) return h + '<div class="ds"><div class="trong">Kỳ này không có dòng khối lượng nào.</div></div>';
+    h += '<div class="ds">' + dong.map(function (x) {
+      return '<div class="dong"><div class="ten">' + e(x.noi_dung) + "</div>" +
+        '<div class="luoi">' + o("KL kỳ này", kl(x.kl_nay) + " " + e(x.dv || ""), x.kl_nay < 0 ? "am" : "") + o("KL giá vốn", kl(x.kl_hd)) +
+        o("Tiền kỳ này", tien(x.tt_nay), x.tt_nay < 0 ? "am" : "") + "</div></div>";
+    }).join("") + "</div>";
+    return h + '<p class="chu-thich">Tiền từng dòng là trước thuế. Chỉ liệt kê dòng có khối lượng kỳ này.</p>';
+  }
+
+  function trangTongHop() {
+    var t = duLieu.tong_hop;
+    if (!t) return chuaCo("Tổng hợp");
+    var ds = kieuTh === "hm" ? t.hm : t.goi, tg = kieuTh === "hm" ? t.tong_hm : t.tong_goi;
+    var h = '<div class="dau"><div class="chon" role="group" aria-label="Cách xem">' +
+      '<button type="button" id="th-goi" aria-pressed="' + (kieuTh === "goi") + '">Theo gói thầu</button>' +
+      '<button type="button" id="th-hm" aria-pressed="' + (kieuTh === "hm") + '">Theo hạng mục</button></div></div>';
+    h += '<div class="tong"><div class="nho">Đã thanh toán / giá vốn</div>' +
+      '<div class="so-lon">' + gon(tg.da_tt) + " <small>/ " + gon(tg.gia_von) + "</small></div>" + thanh(tg.da_tt, tg.gia_von) +
+      cap("Giá báo khách (hiện hành)", tien(tg.bao_khach)) + cap("Giá vốn", tien(tg.gia_von)) +
+      cap("Đã thanh toán · " + (tg.so_dot || 0) + " đợt", tien(tg.da_tt)) +
+      cap("Còn lại", tien(tg.con_lai), "dam ke" + (tg.con_lai < -0.5 ? " am" : "")) + "</div>";
+    h += '<div class="ds">' + ds.map(function (x) {
+      return '<div class="dong"><div class="dau"><span class="ten">' + e(x.ten) + '</span><span class="nho so">' + pt(x.da_tt, x.gia_von) + "</span></div>" +
+        thanh(x.da_tt, x.gia_von) + '<div class="luoi">' +
+        (kieuTh === "hm" ? o("Báo khách", tien(x.bao_khach)) : "") + o("Giá vốn", tien(x.gia_von)) +
+        o("Đã trả" + (x.so_dot ? " · " + x.so_dot + " đợt" : ""), tien(x.da_tt)) + o("Còn lại", tien(x.con_lai), x.con_lai < -0.5 ? "am" : "") + "</div></div>";
+    }).join("") + "</div>";
+    return h + '<p class="chu-thich">' + (kieuTh === "hm"
+      ? "Tiền đã trả của mỗi gói được chia vào các hạng mục theo giá trị khối lượng đã thanh toán."
+      : "Giá báo khách không chia theo gói, chỉ ghi ở phần tổng.") + " Còn lại = giá vốn trước thuế − tiền đã trả.</p>";
+  }
+
+  function trangGoi() {
+    var t = duLieu.thanh_toan;
+    if (!t) return chuaCo("Gói thầu");
+    var ds = t.goi, h = "";
+    if (t.du_thao) h += '<div class="bao vang">' + t.du_thao + " đợt thanh toán còn là DỰ THẢO — chưa tính là đã trả.</div>";
+    var tong = ds.filter(function (x) { return x.kieu === "goi"; }).reduce(function (a, x) { a.st += x.sau_thue; a.da += x.da_tt; return a; }, { st: 0, da: 0 });
+    h += '<div class="tong"><div class="nho">Tiền đã trả nhà thầu (sau thuế)</div><div class="so-lon">' + tien(tong.da) + " <small>đ</small></div>" +
+      thanh(tong.da, tong.st) + cap("Giá trị các gói, sau thuế", tien(tong.st)) + cap("Còn phải trả", tien(tong.st - tong.da), "dam ke") + "</div>";
+    h += '<div class="ds">' + ds.map(function (x) {
+      var nhom = x.kieu === "bo";
+      return '<div class="dong' + (nhom ? " nhom" : "") + (x.du_thao ? " du-thao" : "") + '"><div class="dau"><span class="ten">' + e(x.ten) + "</span>" +
+        (x.du_thao ? '<span class="chip">' + x.du_thao + " dự thảo</span>" : '<span class="nho so">' + pt(x.da_tt, x.sau_thue) + "</span>") + "</div>" +
+        thanh(x.da_tt, x.sau_thue) + '<div class="luoi">' + o("Sau thuế", tien(x.sau_thue)) +
+        o("Đã trả" + (x.so_dot ? " · " + x.so_dot + " đợt" : ""), tien(x.da_tt)) + o("Còn lại", tien(x.con_lai), x.con_lai < -0.5 ? "am" : "") +
+        (!nhom && x.tam_ung ? o("Tạm ứng", tien(x.tam_ung)) : "") + o("Giá vốn", tien(x.gia_von)) + o("Thuế VAT", tien(x.thue)) + "</div></div>";
+    }).join("") + "</div>";
+    return h + '<p class="chu-thich">Đúng bảng phần 5. Dòng nền xanh là cộng của gói bố, các gói con nằm ngay dưới. Đã trả = tạm ứng + các kỳ đã thanh toán.</p>';
+  }
+
+  function trangKhach() {
+    var k = duLieu.khach;
+    if (!k) return chuaCo("Khách trả");
+    var conThu = k.hien_hanh - k.da_thu;
+    var h = '<div class="tong"><div class="nho">Khách đã trả (trước thuế)</div><div class="so-lon">' + tien(k.da_thu) + " <small>đ</small></div>" +
+      thanh(k.da_thu, k.hien_hanh) +
+      cap("Hợp đồng ban đầu (VAT " + kl((k.pt || 0) * 100) + "%)", tien(k.goc)) +
+      cap("Phát sinh khách hàng", tien(k.tong_ps)) +
+      cap("Hợp đồng hiện hành, trước thuế", tien(k.hien_hanh), "ke") +
+      cap("Hợp đồng hiện hành, sau thuế", tien(k.hien_hanh + (k.vat_hien_hanh || 0))) +
+      cap("Còn phải thu (trước thuế)", tien(conThu), "dam ke" + (conThu < -0.5 ? " am" : "")) + "</div>";
+    if (k.ps && k.ps.length) {
+      h += "<h2>Phát sinh khách hàng</h2><div class=\"ds\">" + k.ps.map(function (x) {
+        return '<div class="dong"><div class="ten">' + e(x.ma) + " · " + e(x.noi_dung) + '</div><div class="luoi">' +
+          o("Ngày", e(x.ngay)) + o("Trước thuế", tien(x.truoc_thue), x.truoc_thue < 0 ? "am" : "") + o("Thuế VAT", tien(x.vat)) + "</div></div>";
+      }).join("") + "</div>";
+    }
+    h += "<h2>Các lần khách trả</h2>";
+    if (!k.thu || !k.thu.length) return h + '<div class="ds"><div class="trong">Chưa ghi lần khách trả tiền nào.</div></div>';
+    return h + '<div class="ds">' + k.thu.map(function (x, i) {
+      return '<div class="dong"><div class="dau"><span class="ten">' + (i + 1) + ". " + e(x.noi_dung) + '</span><span class="nho">' + e(x.ngay) + "</span></div>" +
+        '<div class="luoi">' + o("Trước thuế", tien(x.truoc_thue)) + o("Thuế VAT", tien(x.vat)) + o("Tổng", tien(x.tong)) + "</div></div>";
+    }).join("") + "</div>";
+  }
+
+  function trangNhatKy() {
+    var a = duLieu.nhat_ky_thanh_toan, g = duLieu.nhat_ky_gia_von, h = "";
+    if (!a && !g) return chuaCo("Nhật ký");
+    if (a) {
+      h += "<h2>Thanh toán nhà thầu · " + a.ds.length + " lần</h2>";
+      h += '<div class="ds">' + (a.ds.length ? a.ds.slice().reverse().map(function (x) {
+        return '<div class="dong"><div class="dau"><span class="ten">' + e(x.goi) + " · đợt " + String(x.dot).padStart(2, "0") + '</span><span class="so' + (x.tien < 0 ? " am" : "") + '">' + tien(x.tien) + "</span></div>" +
+          '<div class="nho">' + e(x.loai) + " · " + e(x.luc) + (x.ghi_chu ? " · " + e(x.ghi_chu) : "") + "</div></div>";
+      }).join("") : '<div class="trong">Chưa có lần thanh toán nào.</div>') +
+        '<div class="dong nhom">' + cap("Tổng đã thanh toán (trừ các lần hủy)", tien(a.tong), "dam") + "</div></div>";
+    }
+    if (g) {
+      h += "<h2>Giá vốn thay đổi · " + g.ds.length + " lần</h2><div class=\"ds\">" +
+        '<div class="dong nhom">' + cap("Giá vốn lần đầu", tien(g.dau)) + cap("Giá vốn cuối cùng", tien(g.cuoi), "dam") +
+        cap("Chênh", tien(g.dau != null && g.cuoi != null ? g.cuoi - g.dau : null)) + "</div>" +
+        g.ds.slice().reverse().map(function (x) {
+          return '<div class="dong"><div class="dau"><span class="ten">' + e(x.nguon) + (x.pham_vi ? " · " + e(x.pham_vi) : "") + '</span><span class="so' + (x.chenh < 0 ? " am" : "") + '">' +
+            (x.chenh != null ? (x.chenh > 0 ? "+" : "") + tien(x.chenh) : tien(x.sau)) + "</span></div>" +
+            '<div class="nho">' + e(x.thoi_diem) + (x.ly_do ? " · " + e(x.ly_do) : "") + "</div></div>";
+        }).join("") + "</div>";
+    }
+    return h;
+  }
+
+  function veTrang() {
+    var f = { ky: trangKyNay, th: trangTongHop, goi: trangGoi, khach: trangKhach, nk: trangNhatKy }[theDang] || trangKyNay;
+    $("noi-dung").innerHTML = f();
+    var a = $("th-goi"), b = $("th-hm");
+    if (a) a.onclick = function () { kieuTh = "goi"; veTrang(); };
+    if (b) b.onclick = function () { kieuTh = "hm"; veTrang(); };
+  }
+
+  function hien(d, viDu) {
+    duLieu = d; laViDu = !!viDu;
+    bao(d.loi ? "Máy tính gặp lỗi khi lập các bảng tổng hợp cho hồ sơ này (" + e(d.loi) + "). Chỉ xem được phần kỳ này." : "");
+    veHoSo(); veThe(); veTrang();
+  }
+
+  // Hồ sơ cũ chỉ có thong_tin.json: dựng phần "kỳ này" như thanh_toan.dong_ky_nay
+  function tuThongTin(tt) {
+    return { phien_ban: 0, cong_trinh: tt.cong_trinh, ky_nay: {
+      goi: tt.goi, dot: tt.dot, ngay: tt.ngay, tao_luc: tt.tao_luc, da_ghi_nhan: tt.da_ghi_nhan !== false,
+      lan_nay: tt.lan_nay, tong_luy_ke: tt.tong_luy_ke, tong_luy_ke_sau_thue: tt.tong_luy_ke_sau_thue, thue_suat: tt.thue_suat,
+      tam_ung: tt.tam_ung || 0, da_thanh_toan: tt.da_thanh_toan || 0, chua_thanh_toan: tt.chua_thanh_toan,
+      gia_tri_hop_dong: tt.gia_tri_hop_dong, cac_ky_da_tra: tt.cac_ky_da_tra || [], goi_bo: tt.goi_bo || null,
+      dong: (tt.dong || []).map(function (x) {
+        var dg = [x.dg_vl || 0, x.dg_nc || 0, x.dg_may || 0], lk = x.kl_luy_ke || 0, tr = x.kl_truoc || 0;
+        var ttHd = x.thanh_tien_hd != null ? x.thanh_tien_hd : tienBaPhan(x.kl_hd || 0, dg[0], dg[1], dg[2]);
+        var ttLk = tienBaPhan(lk, dg[0], dg[1], dg[2]);
+        return { noi_dung: x.noi_dung, dv: x.dv, kl_hd: x.kl_hd, kl_nay: lk - tr, tt_hd: ttHd,
+          tt_nay: ttLk - tienBaPhan(tr, dg[0], dg[1], dg[2]), con_lai: ttHd - ttLk };
+      }) } };
+  }
+
+  function docFile(file) {
+    if (!file) return;
+    if (typeof JSZip === "undefined") { bao("Không tải được bộ đọc file zip. Kiểm tra mạng rồi mở lại trang."); return; }
+    bao("Đang đọc " + e(file.name) + "…", "vang");
+    JSZip.loadAsync(file).then(function (z) {
+      var m = z.file("mobile.json"), t = z.file("thong_tin.json");
+      if (m) return m.async("string").then(function (s) { return JSON.parse(s); });
+      if (t) return t.async("string").then(function (s) { return tuThongTin(JSON.parse(s)); });
+      throw new Error("khong-phai-ho-so");
+    }).then(function (d) {
+      theDang = "ky";
+      hien(d, false);
+      if (!d.phien_ban) bao("Hồ sơ lập bằng bản chương trình cũ: chỉ có phần “Kỳ này”. Xuất lại hồ sơ bằng bản mới để xem đủ.", "vang");
+      try { localStorage.setItem(KHOA_NHO, JSON.stringify(d)); } catch (x) {}
+    }).catch(function (err) {
+      bao(err && err.message === "khong-phai-ho-so"
+        ? "File “" + e(file.name) + "” không phải hồ sơ thanh toán của chương trình (không có thong_tin.json). Chọn file zip trong thư mục XIN THANH TOAN."
+        : "Không đọc được file “" + e(file.name) + "”. File có thể bị hỏng khi tải về — tải lại rồi mở lại.");
+    });
+  }
+
+  $("o-file").addEventListener("change", function (ev) { docFile(ev.target.files && ev.target.files[0]); ev.target.value = ""; });
+
+  function batDau() {
+    var cu = null;
+    try { cu = JSON.parse(localStorage.getItem(KHOA_NHO) || "null"); } catch (x) { cu = null; }
+    try { var t = localStorage.getItem("so-tt-the"); if (t) theDang = t; } catch (x) {}
+    if (cu) { cu._nho = true; hien(cu, false); } else { hien(VI_DU, true); }
+  }
+  batDau();
+})();
+</script>
+</body>
+</html>
