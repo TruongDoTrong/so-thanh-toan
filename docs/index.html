@@ -28,6 +28,9 @@ body{margin:0}[hidden]{display:none!important}</style>
   --loi: #b3261e;
   --loi-nen: #fbe7e5;
   --thanh: #e6ebea;
+  --ps-khach: #e3f4e6;
+  --ps-noibo: #fbf3d2;
+  --ps-nhathau: #e2ecfa;
   --chu-chinh: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --chu-tieu-de: var(--chu-chinh);
 }
@@ -36,12 +39,14 @@ body{margin:0}[hidden]{display:none!important}</style>
     --nen: #111a1d; --mat: #182327; --muc: #e4ecec; --phu: #93a5a8; --vien: #2a393d;
     --nhan: #5cc3d1; --nhan-nhat: #173a40; --da-tra: #6fcf97; --canh-bao: #f0b26b; --canh-bao-nen: #3a2a17;
     --loi: #f2948b; --loi-nen: #3d1d1a; --thanh: #26353a; color-scheme: dark;
+    --ps-khach: #1d3524; --ps-noibo: #3a3418; --ps-nhathau: #1c2c42;
   }
 }
 :root[data-theme="dark"] {
   --nen: #111a1d; --mat: #182327; --muc: #e4ecec; --phu: #93a5a8; --vien: #2a393d;
   --nhan: #5cc3d1; --nhan-nhat: #173a40; --da-tra: #6fcf97; --canh-bao: #f0b26b; --canh-bao-nen: #3a2a17;
   --loi: #f2948b; --loi-nen: #3d1d1a; --thanh: #26353a; color-scheme: dark;
+  --ps-khach: #1d3524; --ps-noibo: #3a3418; --ps-nhathau: #1c2c42;
 }
 * { box-sizing: border-box; }
 body {
@@ -49,7 +54,45 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 12px 40px;
 }
-.khung { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.khung { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.khung > .tom { max-width: 640px; }
+
+/* Bảng y như máy tính: cuộn ngang/dọc trong khung, dòng tiêu đề và cột đầu đứng yên */
+.cuon { overflow: auto; max-height: 72vh; background: var(--mat); border: 1px solid var(--vien); border-radius: 12px; -webkit-overflow-scrolling: touch; }
+table.bang { border-collapse: separate; border-spacing: 0; font-size: .84rem; font-variant-numeric: tabular-nums; min-width: 100%; }
+table.bang th, table.bang td { padding: 7px 10px; border-bottom: 1px solid var(--vien); text-align: left; vertical-align: top; background: var(--mat); }
+table.bang th { position: sticky; top: 0; z-index: 2; background: var(--thanh); font-weight: 600; white-space: nowrap; font-size: .78rem; color: var(--phu); }
+table.bang th:first-child, table.bang td:first-child { position: sticky; left: 0; z-index: 1; box-shadow: 1px 0 0 var(--vien); }
+table.bang th:first-child { z-index: 3; }
+table.bang td.e, table.bang th.e { text-align: right; white-space: nowrap; }
+table.bang td.c, table.bang th.c { text-align: center; white-space: nowrap; }
+table.bang td.w { min-width: 90px; max-width: 340px; }
+table.bang td.w.dai { min-width: 200px; }
+table.bang tr.tong td { background: var(--nhan-nhat); font-weight: 700; }
+table.bang tr.am td { color: var(--loi); }
+table.bang tr.mo td { color: var(--phu); }
+table.bang tr.thieu td { background: var(--canh-bao-nen); color: var(--canh-bao); }
+table.bang tr.bo td { background: var(--nhan-nhat); font-weight: 600; }
+table.bang tr.ps_khach td { background: var(--ps-khach); }
+table.bang tr.ps_noibo td { background: var(--ps-noibo); }
+table.bang tr.ps_nhathau td { background: var(--ps-nhathau); }
+table.bang tr.bam { cursor: pointer; }
+table.bang tr.bam td:first-child { color: var(--nhan); font-weight: 600; }
+table.bang tr.bam td:first-child::after { content: " ›"; }
+table.bang tr.bam:hover td, table.bang tr.bam:focus-visible td { background: var(--nhan-nhat); }
+table.bang tr.bam:focus-visible { outline: 2px solid var(--nhan); outline-offset: -2px; }
+.thanh-cong-cu { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.o-loc { font: inherit; font-size: .9rem; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--vien); background: var(--mat); color: var(--muc); flex: 1 1 200px; min-width: 0; }
+.o-loc:focus-visible { outline: 3px solid var(--nhan); outline-offset: 1px; }
+.ghi-chu { white-space: pre-wrap; font-size: .84rem; color: var(--phu); background: var(--mat); border: 1px solid var(--vien); border-radius: 12px; padding: 10px 12px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chips button { font: inherit; font-size: .8rem; font-weight: 600; border: 1px solid var(--vien); background: var(--mat); color: var(--phu); border-radius: 8px; padding: 6px 10px; cursor: pointer; text-align: left; }
+.chips button[aria-pressed="true"] { border-color: var(--nhan); color: var(--nhan); background: var(--nhan-nhat); }
+.quay-lai { align-self: flex-start; }
+@media (max-width: 600px) {
+  table.bang td:first-child, table.bang td:first-child.dai { min-width: 110px; max-width: 42vw; }
+  table.bang td.w.dai { min-width: 170px; }
+}
 .so { font-variant-numeric: tabular-nums; white-space: nowrap; }
 h1, h2, h3 { font-family: var(--chu-tieu-de); font-weight: 600; text-wrap: balance; margin: 0; }
 h1 { font-size: 1.15rem; }
@@ -123,7 +166,7 @@ h2 { font-size: 1.02rem; }
   <header class="dau">
     <div>
       <h1>Sổ thanh toán công trình</h1>
-      <div class="nho">Xem hồ sơ zip thanh toán trên điện thoại · chỉ xem</div>
+      <div class="nho">Xem đầy đủ hồ sơ zip thanh toán trên điện thoại / iPad · chỉ xem, không sửa</div>
     </div>
     <label class="nut" for="o-file">📂 Mở file zip</label>
     <input id="o-file" type="file" accept=".zip,application/zip,application/x-zip-compressed">
@@ -210,8 +253,46 @@ h2 { font-size: 1.02rem; }
       { luc: "15/10/2026 16:20", goi: "Kết cấu thép", dot: 2, loai: "Thanh toán", tien: 324000000, ghi_chu: "" }
     ] }
   };
+  // Bảng ví dụ cho phần 1–6 (bịa) — cùng dạng mobile.json thật: các bảng chụp từ màn hình máy tính
+  (function () {
+    var T = function (v) { return v == null ? "" : fmt.format(v); };
+    VI_DU.phan = [
+      { ma: "1", ten: "1 · Số liệu ban đầu", ghi_chu: ["Giá vốn LẦN ĐẦU (đọc từ hai file lúc ghi lần đầu). Giá vốn mới nhất xem ở phần 3."], bang: [
+        { ten: "Theo hạng mục", cot: [["Mã HM", "c"], ["Hạng mục", "w"], ["Giá báo khách", "e"], ["Giá vốn", "e"], ["Chênh lệch", "e"]],
+          dong: [["HM01", "Nhà xưởng", T(5200000000), T(4280000000), T(920000000)], ["HM02", "Văn phòng", T(1800000000), T(1420000000), T(380000000)],
+                 ["", "CỘNG", T(7000000000), T(5700000000), T(1300000000)]], tag: [[], [], ["tong"]], khoa: ["hm1:HM01", null, null] }] },
+      { ma: "2", ten: "2 · Thanh toán chủ đầu tư", ghi_chu: ["Giá trị hợp đồng với khách hiện hành (trước thuế): " + T(7120000000) + " đ"], bang: [
+        { ten: "Các lần chủ đầu tư thanh toán", cot: [["STT", "c"], ["Nội dung thanh toán", "w"], ["Ngày thanh toán", "c"], ["Số tiền trước thuế", "e"], ["Thuế VAT", "e"], ["Tổng", "e"]],
+          dong: [["", "GIÁ TRỊ HỢP ĐỒNG VỚI KHÁCH BAN ĐẦU", "", T(7000000000), T(560000000), T(7560000000)], ["PS01", "Phát sinh khách hàng — đợt 03 · Mái che bãi xe", "05/10/2026", T(120000000), T(9600000), T(129600000)],
+                 ["1", "Tạm ứng hợp đồng 30%", "01/08/2026", T(2100000000), T(168000000), T(2268000000)], ["", "CỘNG ĐÃ THU", "", T(2100000000), T(168000000), T(2268000000)]],
+          tag: [["tong"], ["mo"], [], ["tong"]] }] },
+      { ma: "3", ten: "3 · Giá vốn theo gói thầu", ghi_chu: [], bang: [
+        { ten: "Theo gói thầu", cot: [["Gói thầu", "w"], ["Hạng mục", "w"], ["Số dòng", "e"], ["Giá vốn lần đầu", "e"], ["Giá vốn hiện hành", "e"], ["Chênh", "e"], ["Trạng thái", "w"]],
+          dong: [["Kết cấu thép", "HM01, HM02", "12", T(1450000000), T(1500000000), T(50000000), "đã có hợp đồng"], ["Nhân công", "HM01, HM02", "48", T(1650000000), T(1650000000), "", "giá vốn gốc"],
+                 ["CỘNG CÁC GÓI", "", "", T(5700000000), T(5750000000), T(50000000), ""]], tag: [[], [], ["tong"]], khoa: ["goi:Kết cấu thép", null, null] }] },
+      { ma: "5", ten: "5 · Thanh toán nhà thầu", ghi_chu: [], bang: [
+        { ten: "Các gói thầu", cot: [["Gói thầu", "w"], ["Giá trị giá vốn", "e"], ["Giá trị sau thuế", "e"], ["Đã thanh toán", "e"], ["Còn lại", "e"], ["% đã trả", "e"]],
+          dong: [["Kết cấu thép", T(1500000000), T(1620000000), T(810000000), T(810000000), "50,0%"], ["Nhân công", T(1650000000), T(1782000000), T(270000000), T(1512000000), "15,2%"]],
+          tag: [[], ["am"]], khoa: ["tt:Kết cấu thép", null] }] },
+      { ma: "6", ten: "6 · Tổng hợp", ghi_chu: [], bang: [
+        { ten: "Theo gói thầu", cot: [["Hạng mục / gói thầu", "w"], ["Giá vốn", "e"], ["Số đợt thanh toán", "c"], ["Đã thanh toán", "e"], ["Còn lại", "e"]],
+          dong: [["Kết cấu thép", T(1500000000), "3", T(810000000), T(690000000)], ["Nhân công", T(1650000000), "1", T(270000000), T(1380000000)], ["TỔNG", T(5750000000), "4", T(1080000000), T(4670000000)]],
+          tag: [[], [], ["tong"]], khoa: ["tt:Kết cấu thép", null, null] }] }
+    ];
+    var DONG_GOI = { ten: "Dòng giá vốn của gói (chỉ phần thuộc gói này)", cot: [["Mã dòng", "w"], ["Nội dung", "w"], ["ĐV", "c"], ["Khối lượng", "e"], ["ĐG vật liệu", "e"], ["Thành tiền", "e"]],
+      dong: [["HM01-120", "Gia công, lắp dựng cột thép", "kg", "42.000,000", T(20000), T(840000000)], ["HM01-121", "Gia công, lắp dựng kèo thép", "kg", "30.000,000", T(20000), T(600000000)],
+             ["HM02-088", "Bu lông neo M24", "bộ", "120,000", T(500000), T(60000000)], ["", "CỘNG 3 dòng", "", "", "", T(1500000000)]], tag: [[], [], [], ["tong"]] };
+    VI_DU.chi_tiet = {
+      "goi:Kết cấu thép": { ten: "Kết cấu thép", ghi_chu: "Giá vốn HIỆN HÀNH của gói thầu.", bang: [DONG_GOI] },
+      "tt:Kết cấu thép": { ten: "Kết cấu thép", ghi_chu: "Thanh toán nhà thầu — thuế suất gói 8%.", bang: [
+        { ten: "Các đợt thanh toán", cot: [["Đợt", "c"], ["Ngày", "c"], ["Lũy kế KL (trước thuế)", "e"], ["Thanh toán kỳ này", "e"], ["Trạng thái", "w"]],
+          dong: [["01", "20/09/2026", T(250000000), T(270000000), "đã thanh toán"], ["02", "15/10/2026", T(750000000), T(324000000), "đã thanh toán"]] }, DONG_GOI] },
+      "hm1:HM01": { ten: "HM01 — Nhà xưởng", ghi_chu: "Dòng công việc của hạng mục — giá vốn lần đầu.", bang: [DONG_GOI] }
+    };
+  })();
 
-  var CAC_THE = [["ky", "Kỳ này"], ["th", "Tổng hợp"], ["goi", "Gói thầu"], ["khach", "Khách trả"], ["nk", "Nhật ký"]];
+  var CAC_THE = [["ky", "Kỳ này"], ["1", "1 · Số liệu"], ["2", "2 · Chủ đầu tư"], ["3", "3 · Giá vốn"],
+    ["4", "4 · Điều chỉnh"], ["5", "5 · Thanh toán"], ["6", "6 · Tổng hợp"], ["nk", "Nhật ký"]];
   var $ = function (id) { return document.getElementById(id); };
 
   function bao(chu, lop) { $("bao").innerHTML = chu ? '<div class="bao ' + (lop || "loi") + '">' + chu + "</div>" : ""; }
@@ -236,7 +317,7 @@ h2 { font-size: 1.02rem; }
     $("cac-the").innerHTML = CAC_THE.map(function (t) {
       return '<button class="the" role="tab" type="button" id="the-' + t[0] + '" aria-selected="' + (t[0] === theDang) + '">' + t[1] + "</button>";
     }).join("");
-    CAC_THE.forEach(function (t) { $("the-" + t[0]).onclick = function () { theDang = t[0]; veThe(); veTrang(); try { localStorage.setItem("so-tt-the", t[0]); } catch (x) {} }; });
+    CAC_THE.forEach(function (t) { $("the-" + t[0]).onclick = function () { theDang = t[0]; chiTiet = []; loc = ""; veThe(); veTrang(); try { localStorage.setItem("so-tt-the", t[0]); } catch (x) {} }; });
   }
 
   function chuaCo(ten) { return '<div class="ds"><div class="trong">Hồ sơ này lập bằng bản chương trình cũ nên chưa có phần “' + ten + '”. Lập lại hồ sơ bằng bản mới để xem.</div></div>'; }
@@ -275,71 +356,82 @@ h2 { font-size: 1.02rem; }
     return h + '<p class="chu-thich">Tiền từng dòng là trước thuế. Chỉ liệt kê dòng có khối lượng kỳ này.</p>';
   }
 
-  function trangTongHop() {
-    var t = duLieu.tong_hop;
-    if (!t) return chuaCo("Tổng hợp");
-    var ds = kieuTh === "hm" ? t.hm : t.goi, tg = kieuTh === "hm" ? t.tong_hm : t.tong_goi;
-    var h = '<div class="dau"><div class="chon" role="group" aria-label="Cách xem">' +
-      '<button type="button" id="th-goi" aria-pressed="' + (kieuTh === "goi") + '">Theo gói thầu</button>' +
-      '<button type="button" id="th-hm" aria-pressed="' + (kieuTh === "hm") + '">Theo hạng mục</button></div></div>';
-    h += '<div class="tong"><div class="nho">Đã thanh toán / giá vốn</div>' +
-      '<div class="so-lon">' + gon(tg.da_tt) + " <small>/ " + gon(tg.gia_von) + "</small></div>" + thanh(tg.da_tt, tg.gia_von) +
-      cap("Giá báo khách (hiện hành)", tien(tg.bao_khach)) + cap("Giá vốn", tien(tg.gia_von)) +
-      cap("Đã thanh toán · " + (tg.so_dot || 0) + " đợt", tien(tg.da_tt)) +
-      cap("Còn lại", tien(tg.con_lai), "dam ke" + (tg.con_lai < -0.5 ? " am" : "")) + "</div>";
-    h += '<div class="ds">' + ds.map(function (x) {
-      return '<div class="dong"><div class="dau"><span class="ten">' + e(x.ten) + '</span><span class="nho so">' + pt(x.da_tt, x.gia_von) + "</span></div>" +
-        thanh(x.da_tt, x.gia_von) + '<div class="luoi">' +
-        (kieuTh === "hm" ? o("Báo khách", tien(x.bao_khach)) : "") + o("Giá vốn", tien(x.gia_von)) +
-        o("Đã trả" + (x.so_dot ? " · " + x.so_dot + " đợt" : ""), tien(x.da_tt)) + o("Còn lại", tien(x.con_lai), x.con_lai < -0.5 ? "am" : "") + "</div></div>";
-    }).join("") + "</div>";
-    return h + '<p class="chu-thich">' + (kieuTh === "hm"
-      ? "Tiền đã trả của mỗi gói được chia vào các hạng mục theo giá trị khối lượng đã thanh toán."
-      : "Giá báo khách không chia theo gói, chỉ ghi ở phần tổng.") + " Còn lại = giá vốn trước thuế − tiền đã trả.</p>";
+  // ---- phần 1–6: bảng chụp từ máy tính (mobile.json "phan"), bấm dòng để xem chi tiết ----
+  var chon = {}, chiTiet = [], loc = "";
+
+  function veBang(b, ma) {
+    var cot = b.cot || [], dong = b.dong || [], tag = b.tag || [], khoa = b.khoa || [];
+    var dai = cot.map(function (c) { return /nội dung|hạng mục|gói thầu|lý do|nhóm|phạm vi|ghi chú|nguồn|trạng thái/i.test(c[0]); });
+    var q = loc.trim().toLowerCase(), hien = 0;
+    var h = '<div class="cuon"><table class="bang"><thead><tr>' +
+      cot.map(function (c) { return '<th class="' + e(c[1]) + '" scope="col">' + e(c[0]) + "</th>"; }).join("") + "</tr></thead><tbody>";
+    dong.forEach(function (r, i) {
+      var tg = tag[i] || [], k = khoa[i];
+      if (q && tg.indexOf("tong") < 0 && r.join(" ").toLowerCase().indexOf(q) < 0) return;
+      hien++;
+      h += '<tr class="' + e(tg.join(" ")) + (k ? " bam" : "") + '"' + (k ? ' tabindex="0" data-k="' + e(k) + '"' : "") + ">" +
+        r.map(function (v, j) { return '<td class="' + e((cot[j] || ["", "w"])[1]) + (dai[j] ? " dai" : "") + '">' + e(String(v).replace(/ ⏎ /g, "\n")).replace(/\n/g, "<br>") + "</td>"; }).join("") + "</tr>";
+    });
+    h += "</tbody></table></div>";
+    var nhan = dong.length + " dòng" + (q ? " · khớp " + hien : "") + (khoa.some(Boolean) ? " · bấm dòng có dấu › để xem chi tiết" : "") +
+      (cot.length > 4 ? " · vuốt ngang để xem hết cột" : "");
+    return (b.ghi_chu ? '<div class="ghi-chu">' + e(b.ghi_chu) + "</div>" : "") + '<div class="nho">' + nhan + "</div>" + h;
   }
 
-  function trangGoi() {
-    var t = duLieu.thanh_toan;
-    if (!t) return chuaCo("Gói thầu");
-    var ds = t.goi, h = "";
-    if (t.du_thao) h += '<div class="bao vang">' + t.du_thao + " đợt thanh toán còn là DỰ THẢO — chưa tính là đã trả.</div>";
-    var tong = ds.filter(function (x) { return x.kieu === "goi"; }).reduce(function (a, x) { a.st += x.sau_thue; a.da += x.da_tt; return a; }, { st: 0, da: 0 });
-    h += '<div class="tong"><div class="nho">Tiền đã trả nhà thầu (sau thuế)</div><div class="so-lon">' + tien(tong.da) + " <small>đ</small></div>" +
-      thanh(tong.da, tong.st) + cap("Giá trị các gói, sau thuế", tien(tong.st)) + cap("Còn phải trả", tien(tong.st - tong.da), "dam ke") + "</div>";
-    h += '<div class="ds">' + ds.map(function (x) {
-      var nhom = x.kieu === "bo";
-      return '<div class="dong' + (nhom ? " nhom" : "") + (x.du_thao ? " du-thao" : "") + '"><div class="dau"><span class="ten">' + e(x.ten) + "</span>" +
-        (x.du_thao ? '<span class="chip">' + x.du_thao + " dự thảo</span>" : '<span class="nho so">' + pt(x.da_tt, x.sau_thue) + "</span>") + "</div>" +
-        thanh(x.da_tt, x.sau_thue) + '<div class="luoi">' + o("Sau thuế", tien(x.sau_thue)) +
-        o("Đã trả" + (x.so_dot ? " · " + x.so_dot + " đợt" : ""), tien(x.da_tt)) + o("Còn lại", tien(x.con_lai), x.con_lai < -0.5 ? "am" : "") +
-        (!nhom && x.tam_ung ? o("Tạm ứng", tien(x.tam_ung)) : "") + o("Giá vốn", tien(x.gia_von)) + o("Thuế VAT", tien(x.thue)) + "</div></div>";
-    }).join("") + "</div>";
-    return h + '<p class="chu-thich">Đúng bảng phần 5. Dòng nền xanh là cộng của gói bố, các gói con nằm ngay dưới. Đã trả = tạm ứng + các kỳ đã thanh toán.</p>';
-  }
-
-  function trangKhach() {
-    var k = duLieu.khach;
-    if (!k) return chuaCo("Khách trả");
-    var conThu = k.hien_hanh - k.da_thu;
-    var h = '<div class="tong"><div class="nho">Khách đã trả (trước thuế)</div><div class="so-lon">' + tien(k.da_thu) + " <small>đ</small></div>" +
-      thanh(k.da_thu, k.hien_hanh) +
-      cap("Hợp đồng ban đầu (VAT " + kl((k.pt || 0) * 100) + "%)", tien(k.goc)) +
-      cap("Phát sinh khách hàng", tien(k.tong_ps)) +
-      cap("Hợp đồng hiện hành, trước thuế", tien(k.hien_hanh), "ke") +
-      cap("Hợp đồng hiện hành, sau thuế", tien(k.hien_hanh + (k.vat_hien_hanh || 0))) +
-      cap("Còn phải thu (trước thuế)", tien(conThu), "dam ke" + (conThu < -0.5 ? " am" : "")) + "</div>";
-    if (k.ps && k.ps.length) {
-      h += "<h2>Phát sinh khách hàng</h2><div class=\"ds\">" + k.ps.map(function (x) {
-        return '<div class="dong"><div class="ten">' + e(x.ma) + " · " + e(x.noi_dung) + '</div><div class="luoi">' +
-          o("Ngày", e(x.ngay)) + o("Trước thuế", tien(x.truoc_thue), x.truoc_thue < 0 ? "am" : "") + o("Thuế VAT", tien(x.vat)) + "</div></div>";
+  function veNhieuBang(ds, ma, tieuDe) {
+    if (!ds || !ds.length) return '<div class="ds"><div class="trong">Không có bảng nào.</div></div>';
+    var i = Math.min(chon[ma] || 0, ds.length - 1);
+    var h = "";
+    if (ds.length > 1) {
+      h += '<div class="chips" role="group" aria-label="Chọn bảng">' + ds.map(function (b, j) {
+        return '<button type="button" data-bang="' + j + '" aria-pressed="' + (j === i) + '">' + e(b.ten) + "</button>";
       }).join("") + "</div>";
+    } else if (tieuDe !== false) {
+      h += "<h2>" + e(ds[0].ten) + "</h2>";
     }
-    h += "<h2>Các lần khách trả</h2>";
-    if (!k.thu || !k.thu.length) return h + '<div class="ds"><div class="trong">Chưa ghi lần khách trả tiền nào.</div></div>';
-    return h + '<div class="ds">' + k.thu.map(function (x, i) {
-      return '<div class="dong"><div class="dau"><span class="ten">' + (i + 1) + ". " + e(x.noi_dung) + '</span><span class="nho">' + e(x.ngay) + "</span></div>" +
-        '<div class="luoi">' + o("Trước thuế", tien(x.truoc_thue)) + o("Thuế VAT", tien(x.vat)) + o("Tổng", tien(x.tong)) + "</div></div>";
-    }).join("") + "</div>";
+    var tong = ds[i].dong ? ds[i].dong.length : 0;
+    if (tong > 25) h += '<div class="thanh-cong-cu"><input id="o-loc" class="o-loc" type="search" placeholder="Lọc dòng: gõ tên công việc, mã…" value="' + e(loc) + '"></div>';
+    return h + veBang(ds[i], ma);
+  }
+
+  function trangPhan(ma) {
+    var p = (duLieu.phan || []).filter(function (x) { return x.ma === ma; })[0];
+    if (!p) {
+      if (laViDu) return '<div class="ds"><div class="trong">Ví dụ không có phần này. Mở một file zip hồ sơ để xem số liệu thật.</div></div>';
+      return chuaCo(ma + " · bảng đầy đủ");
+    }
+    return "<h2>" + e(p.ten) + "</h2>" + (p.ghi_chu || []).map(function (c) { return '<div class="ghi-chu">' + e(c) + "</div>"; }).join("") +
+      veNhieuBang(p.bang, "p" + ma);
+  }
+
+  function trangChiTiet() {
+    var k = chiTiet[chiTiet.length - 1], c = (duLieu.chi_tiet || {})[k];
+    var h = '<button type="button" class="nut phu quay-lai" id="quay-lai">‹ Quay lại</button>';
+    if (!c) return h + '<div class="ds"><div class="trong">Không có chi tiết cho dòng này.</div></div>';
+    return h + "<h2>" + e(c.ten) + "</h2>" + (c.ghi_chu ? '<div class="ghi-chu">' + e(c.ghi_chu) + "</div>" : "") +
+      veNhieuBang(c.bang, "ct:" + k);
+  }
+
+  function ganSuKien() {
+    var nd = $("noi-dung");
+    Array.prototype.forEach.call(nd.querySelectorAll("[data-bang]"), function (b) {
+      b.onclick = function () {
+        var ma = chiTiet.length ? "ct:" + chiTiet[chiTiet.length - 1] : "p" + theDang;
+        chon[ma] = Number(b.getAttribute("data-bang")); loc = ""; veTrang();
+      };
+    });
+    Array.prototype.forEach.call(nd.querySelectorAll("tr[data-k]"), function (tr) {
+      var mo = function () { chiTiet.push(tr.getAttribute("data-k")); loc = ""; veTrang(); window.scrollTo(0, 0); };
+      tr.onclick = mo;
+      tr.onkeydown = function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); mo(); } };
+    });
+    var ql = $("quay-lai");
+    if (ql) ql.onclick = function () { chiTiet.pop(); loc = ""; veTrang(); };
+    var ol = $("o-loc");
+    if (ol) ol.oninput = function () {
+      loc = ol.value; var pos = ol.selectionStart; veTrang();
+      var o2 = $("o-loc"); if (o2) { o2.focus(); try { o2.setSelectionRange(pos, pos); } catch (x) {} }
+    };
   }
 
   function trangNhatKy() {
@@ -367,16 +459,19 @@ h2 { font-size: 1.02rem; }
   }
 
   function veTrang() {
-    var f = { ky: trangKyNay, th: trangTongHop, goi: trangGoi, khach: trangKhach, nk: trangNhatKy }[theDang] || trangKyNay;
-    $("noi-dung").innerHTML = f();
-    var a = $("th-goi"), b = $("th-hm");
-    if (a) a.onclick = function () { kieuTh = "goi"; veTrang(); };
-    if (b) b.onclick = function () { kieuTh = "hm"; veTrang(); };
+    var nd = $("noi-dung"), hep = theDang === "ky" || theDang === "nk";
+    if (chiTiet.length) { nd.innerHTML = trangChiTiet(); hep = false; }
+    else if (theDang === "ky") nd.innerHTML = trangKyNay();
+    else if (theDang === "nk") nd.innerHTML = trangNhatKy();
+    else nd.innerHTML = trangPhan(theDang);
+    nd.classList.toggle("tom", hep);
+    ganSuKien();
   }
 
   function hien(d, viDu) {
-    duLieu = d; laViDu = !!viDu;
-    bao(d.loi ? "Máy tính gặp lỗi khi lập các bảng tổng hợp cho hồ sơ này (" + e(d.loi) + "). Chỉ xem được phần kỳ này." : "");
+    duLieu = d; laViDu = !!viDu; chiTiet = []; chon = {}; loc = "";
+    if (!CAC_THE.some(function (t) { return t[0] === theDang; })) theDang = "ky";
+    bao(d.loi ? "Máy tính gặp lỗi khi lập các bảng tổng hợp cho hồ sơ này (" + e(d.loi) + "). Chỉ xem được phần kỳ này và nhật ký." : "");
     veHoSo(); veThe(); veTrang();
   }
 
@@ -408,7 +503,7 @@ h2 { font-size: 1.02rem; }
     }).then(function (d) {
       theDang = "ky";
       hien(d, false);
-      if (!d.phien_ban) bao("Hồ sơ lập bằng bản chương trình cũ: chỉ có phần “Kỳ này”. Xuất lại hồ sơ bằng bản mới để xem đủ.", "vang");
+      if (!d.phan) bao("Hồ sơ lập bằng bản chương trình cũ: chưa có đủ các phần 1–6. Xuất lại hồ sơ bằng bản mới để xem đầy đủ.", "vang");
       try { localStorage.setItem(KHOA_NHO, JSON.stringify(d)); } catch (x) {}
     }).catch(function (err) {
       bao(err && err.message === "khong-phai-ho-so"
