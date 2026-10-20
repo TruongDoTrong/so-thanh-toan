@@ -248,10 +248,15 @@ h2 { font-size: 1.02rem; }
       '<div class="so-lon">' + tien(k.lan_nay) + " <small>đ</small></div>" +
       cap("Giá trị gói (giá vốn, trước thuế)", tien(k.gia_tri_hop_dong)) +
       cap("Lũy kế khối lượng, trước thuế", tien(k.tong_luy_ke)) +
-      (k.thue_suat != null ? cap("Lũy kế sau thuế (VAT " + kl(k.thue_suat) + "%)", tien(lkSt)) : "") +
-      cap("Tạm ứng", tien(k.tam_ung), "ke");
-    (k.cac_ky_da_tra || []).forEach(function (x) { h += cap("Đã trả kỳ " + x.ky + (x.ngay ? " (" + x.ngay + ")" : ""), tien(x.so_tien)); });
-    h += cap("Kỳ này", tien(k.lan_nay)) +
+      (k.thue_suat != null ? cap("Lũy kế sau thuế (VAT " + kl(k.thue_suat) + "%)", tien(lkSt)) : "");
+    // Nguoi dung chot 20/10/2026: tam ung = thanh toan dot 1, khong con tam ung rieng -> dong "Tam ung" chi hien
+    // khi so lieu cu co tien tam ung (nhu khung Tong hop goi thau tren may tinh)
+    var cacDong = [];
+    if (Math.abs(Number(k.tam_ung) || 0) > 0.5) cacDong.push(["Tạm ứng", k.tam_ung]);
+    (k.cac_ky_da_tra || []).forEach(function (x) { cacDong.push(["Đã trả kỳ " + x.ky + (x.ngay ? " (" + x.ngay + ")" : ""), x.so_tien]); });
+    cacDong.push(["Kỳ này", k.lan_nay]);
+    cacDong.forEach(function (r, i) { h += cap(r[0], tien(r[1]), i === 0 ? "ke" : ""); });
+    h +=
       cap("Chưa thanh toán", tien(k.chua_thanh_toan), "dam ke" + (k.chua_thanh_toan < -0.5 ? " am" : "")) + "</div>";
     if (k.goi_bo) {
       var b = k.goi_bo;
