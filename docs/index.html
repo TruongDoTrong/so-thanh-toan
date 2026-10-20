@@ -89,6 +89,10 @@ table.bang tr.bam:focus-visible { outline: 2px solid var(--nhan); outline-offset
 .chips button { font: inherit; font-size: .8rem; font-weight: 600; border: 1px solid var(--vien); background: var(--mat); color: var(--phu); border-radius: 8px; padding: 6px 10px; cursor: pointer; text-align: left; }
 .chips button[aria-pressed="true"] { border-color: var(--nhan); color: var(--nhan); background: var(--nhan-nhat); }
 .quay-lai { align-self: flex-start; }
+.cac-tong { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.mot-tong { padding: 12px 14px; gap: 4px; }
+.mot-tong .ten-tong { font-weight: 700; font-size: .9rem; overflow-wrap: anywhere; }
+.mot-tong .cap { font-size: .86rem; }
 @media (max-width: 600px) {
   table.bang td:first-child, table.bang td:first-child.dai { min-width: 110px; max-width: 42vw; }
   table.bang td.w.dai { min-width: 170px; }
@@ -285,10 +289,25 @@ h2 { font-size: 1.02rem; }
     var cot = b.cot || [], dong = b.dong || [], tag = b.tag || [], khoa = b.khoa || [];
     var dai = cot.map(function (c) { return /nội dung|hạng mục|gói thầu|lý do|nhóm|phạm vi|ghi chú|nguồn|trạng thái/i.test(c[0]); });
     var q = loc.trim().toLowerCase(), hien = 0;
+    // Nguoi dung bao 20/10/2026: dong TONG tren dien thoai chi thay con so (14.024.070.043, 12.105.676.973…), khong
+    // biet so nao la gi - vi phai vuot ngang, ten cot o tieu de, chu "CONG…" lai o cot thu hai troi mat.
+    // -> (1) dong tong dua TEN vao cot dau dung yen; (2) tren bang co khung "Cac so tong": tung so kem ten cot.
+    var LA_SO = /^[-−+]?[\d.,]+\s*(%|đ)?$/;
+    function tenTong(r) {
+      for (var j = 0; j < r.length; j++) { var v = String(r[j] || "").trim(); if (v && !LA_SO.test(v)) return j; }
+      return -1;
+    }
+    var tongs = [];
     var h = '<div class="cuon"><table class="bang"><thead><tr>' +
       cot.map(function (c) { return '<th class="' + e(c[1]) + '" scope="col">' + e(c[0]) + "</th>"; }).join("") + "</tr></thead><tbody>";
     dong.forEach(function (r, i) {
       var tg = tag[i] || [], k = khoa[i];
+      if (tg.indexOf("tong") >= 0) {
+        var jt = tenTong(r);
+        tongs.push({ ten: jt >= 0 ? String(r[jt]) : "Tổng", so: r.map(function (v, j) {
+          return j === jt || !String(v || "").trim() ? null : [cot[j] ? cot[j][0] : "", v]; }).filter(Boolean) });
+        if (jt > 0 && !String(r[0] || "").trim()) { r = r.slice(); r[0] = r[jt]; r[jt] = ""; }
+      }
       if (q && tg.indexOf("tong") < 0 && r.join(" ").toLowerCase().indexOf(q) < 0) return;
       hien++;
       h += '<tr class="' + e(tg.join(" ")) + (k ? " bam" : "") + '"' + (k ? ' tabindex="0" data-k="' + e(k) + '"' : "") + ">" +
@@ -297,7 +316,16 @@ h2 { font-size: 1.02rem; }
     h += "</tbody></table></div>";
     var nhan = dong.length + " dòng" + (q ? " · khớp " + hien : "") + (khoa.some(Boolean) ? " · bấm dòng có dấu › để xem chi tiết" : "") +
       (cot.length > 4 ? " · vuốt ngang để xem hết cột" : "");
-    return (b.ghi_chu ? '<div class="ghi-chu">' + e(b.ghi_chu) + "</div>" : "") + '<div class="nho">' + nhan + "</div>" + h;
+    var khungTong = "";
+    var coSo = tongs.filter(function (t) { return t.so.length; });
+    if (coSo.length) {
+      khungTong = '<div class="cac-tong">' + coSo.map(function (t) {
+        return '<div class="tong mot-tong"><div class="ten-tong">' + e(t.ten) + "</div>" +
+          t.so.map(function (s) { return cap(s[0] || "—", e(s[1])); }).join("") + "</div>";
+      }).join("") + "</div>";
+    }
+    return (b.ghi_chu ? '<div class="ghi-chu">' + e(b.ghi_chu) + "</div>" : "") + khungTong +
+      '<div class="nho">' + nhan + "</div>" + h;
   }
 
   function veNhieuBang(ds, ma, tieuDe) {
