@@ -420,7 +420,7 @@ h2 { font-size: 1.02rem; }
     }).then(function (d) {
       theDang = "ky";
       hien(d, false);
-      if (!d.phan) bao("Hồ sơ lập bằng bản chương trình cũ: chưa có đủ các phần 1–6. Xuất lại hồ sơ bằng bản mới để xem đầy đủ.", "vang");
+      if (!d.phan) bao("Hồ sơ lập bằng bản chương trình cũ: chưa có đủ các phần 1–6. Các đợt thanh toán bằng chương trình bản mới sẽ có file zip xem được đầy đủ.", "vang");
     }).catch(function (err) {
       bao(err && err.message === "khong-phai-ho-so"
         ? "File “" + e(file.name) + "” không phải hồ sơ thanh toán của chương trình (không có thong_tin.json). Chọn file zip trong thư mục XIN THANH TOAN."
@@ -437,7 +437,7 @@ h2 { font-size: 1.02rem; }
     bao("");
     $("ho-so").innerHTML =
       '<div class="ten-ct">Chưa mở hồ sơ nào</div>' +
-      '<div class="nho">Bấm <b>📂 Mở file zip</b> rồi chọn file zip thanh toán (chương trình trên máy tính xuất ra, nhận qua Zalo / email). ' +
+      '<div class="nho">Bấm <b>📂 Mở file zip</b> rồi chọn file zip thanh toán (chương trình trên máy tính tự tạo khi bấm “Thanh toán đợt này”, nằm trong thư mục XIN THANH TOAN; nhận qua Zalo / email). ' +
       'Trên điện thoại / iPad: lưu file vào Tệp (Files) trước.</div>' +
       '<div class="nho">Trang chỉ hiện số liệu của file vừa chọn — đóng trang là hết, không lưu lại trên máy.</div>' +
       '<div class="nho">Muốn SỬA số liệu: mở file zip bằng chương trình trên máy tính → phần 6 · Tổng hợp → “📥 Nhận hồ sơ về máy này…”.</div>' +
