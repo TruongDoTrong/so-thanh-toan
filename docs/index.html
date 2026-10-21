@@ -377,7 +377,8 @@ h2 { font-size: 1.02rem; }
           if (j === jt || !String(v || "").trim()) return;
           var dn = dotNay && j === cotDN ? dotNay[i] : null;
           if (dn) {
-            cacSo.push(["Đã thanh toán các đợt trước", tien(soCua(v) - dn)]);
+            // mobile.json moi (da_tt_truoc): o da ghi so CAC DOT TRUOC, khong tru lan nua (21/10/2026)
+            cacSo.push(["Đã thanh toán các đợt trước", tien(b.da_tt_truoc ? soCua(v) : soCua(v) - dn)]);
             cacSo.push(["Thanh toán đợt này", tien(dn), true]);
           } else cacSo.push([cot[j] ? cot[j][0] : "", v]);
           (b.them_tong || []).forEach(function (t) {
