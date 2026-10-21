@@ -31,6 +31,8 @@ body{margin:0}[hidden]{display:none!important}</style>
   --ps-khach: #e3f4e6;
   --ps-noibo: #fbf3d2;
   --ps-nhathau: #e2ecfa;
+  --dn: #c2410c;
+  --dn-nen: #ffedd5;
   --chu-chinh: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --chu-tieu-de: var(--chu-chinh);
 }
@@ -40,6 +42,7 @@ body{margin:0}[hidden]{display:none!important}</style>
     --nhan: #5cc3d1; --nhan-nhat: #173a40; --da-tra: #6fcf97; --canh-bao: #f0b26b; --canh-bao-nen: #3a2a17;
     --loi: #f2948b; --loi-nen: #3d1d1a; --thanh: #26353a; color-scheme: dark;
     --ps-khach: #1d3524; --ps-noibo: #3a3418; --ps-nhathau: #1c2c42;
+    --dn: #fdba74; --dn-nen: #3b2414;
   }
 }
 :root[data-theme="dark"] {
@@ -47,6 +50,7 @@ body{margin:0}[hidden]{display:none!important}</style>
   --nhan: #5cc3d1; --nhan-nhat: #173a40; --da-tra: #6fcf97; --canh-bao: #f0b26b; --canh-bao-nen: #3a2a17;
   --loi: #f2948b; --loi-nen: #3d1d1a; --thanh: #26353a; color-scheme: dark;
   --ps-khach: #1d3524; --ps-noibo: #3a3418; --ps-nhathau: #1c2c42;
+  --dn: #fdba74; --dn-nen: #3b2414;
 }
 * { box-sizing: border-box; }
 body {
@@ -89,6 +93,16 @@ table.bang tr.bam:focus-visible { outline: 2px solid var(--nhan); outline-offset
 .chips button { font: inherit; font-size: .8rem; font-weight: 600; border: 1px solid var(--vien); background: var(--mat); color: var(--phu); border-radius: 8px; padding: 6px 10px; cursor: pointer; text-align: left; }
 .chips button[aria-pressed="true"] { border-color: var(--nhan); color: var(--nhan); background: var(--nhan-nhat); }
 .quay-lai { align-self: flex-start; }
+.bao-dot-nay { background: var(--dn-nen); color: var(--dn); font-weight: 700; border-radius: 10px; padding: 8px 12px; font-size: .9rem; }
+.dot-nay { display: block; color: var(--dn); font-weight: 700; font-size: .76rem; white-space: nowrap; }
+table.bang td.co-dot-nay { background: var(--dn-nen); }
+table.bang tr.hang-dot-nay td:first-child { box-shadow: inset 5px 0 0 var(--dn), 1px 0 0 var(--vien); color: var(--dn); }
+.cap.dong-dot-nay { background: var(--dn-nen); border-radius: 8px; padding: 4px 8px; margin: 2px -8px; }
+.cap.dong-dot-nay > span { color: var(--dn) !important; font-weight: 700; }
+@media (prefers-reduced-motion: no-preference) {
+  .nhay { animation: nhay 1.1s ease-in-out infinite; }
+  @keyframes nhay { 50% { opacity: .3; } }
+}
 .cac-tong { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
 .mot-tong { padding: 12px 14px; gap: 4px; }
 .mot-tong .ten-tong { font-weight: 700; font-size: .9rem; overflow-wrap: anywhere; }
@@ -298,20 +312,40 @@ h2 { font-size: 1.02rem; }
       return -1;
     }
     var tongs = [];
-    var h = '<div class="cuon"><table class="bang"><thead><tr>' +
+    // Nguoi dung chot 21/10/2026 (phan Tong hop): da thanh toan = cac dot truoc + dong "Thanh toan dot nay" doi mau,
+    // nhap nhay; o bang hang muc / goi to mau va nhap nhay phan dot nay. So lieu: mobile.json dot_nay (tinh tren may tinh).
+    var dotNay = b.dot_nay || null, cotDN = b.cot_dot_nay;
+    function soCua(v) { var t = String(v || "").replace(/\./g, "").replace(",", ".").replace(/[^\d.\-−]/g, "").replace("−", "-"); return Number(t) || 0; }
+    var h = (dotNay && b.dot_nay_ten ? '<div class="bao-dot-nay nhay">● ' + e(b.dot_nay_ten) + ": " +
+        tien(dotNay.reduce(function (a, x, i) { return (tag[i] || []).indexOf("tong") >= 0 && x ? x : a; }, 0) ||
+             dotNay.filter(Boolean).reduce(function (a, x) { return a + x; }, 0)) + " đ</div>" : "") +
+      '<div class="cuon"><table class="bang"><thead><tr>' +
       cot.map(function (c) { return '<th class="' + e(c[1]) + '" scope="col">' + e(c[0]) + "</th>"; }).join("") + "</tr></thead><tbody>";
     dong.forEach(function (r, i) {
       var tg = tag[i] || [], k = khoa[i];
       if (tg.indexOf("tong") >= 0) {
         var jt = tenTong(r);
-        tongs.push({ ten: jt >= 0 ? String(r[jt]) : "Tổng", so: r.map(function (v, j) {
-          return j === jt || !String(v || "").trim() ? null : [cot[j] ? cot[j][0] : "", v]; }).filter(Boolean) });
+        var cacSo = [];
+        r.forEach(function (v, j) {
+          if (j === jt || !String(v || "").trim()) return;
+          var dn = dotNay && j === cotDN ? dotNay[i] : null;
+          if (dn) {
+            cacSo.push(["Đã thanh toán các đợt trước", tien(soCua(v) - dn)]);
+            cacSo.push(["Thanh toán đợt này", tien(dn), true]);
+          } else cacSo.push([cot[j] ? cot[j][0] : "", v]);
+        });
+        tongs.push({ ten: jt >= 0 ? String(r[jt]) : "Tổng", so: cacSo });
         if (jt > 0 && !String(r[0] || "").trim()) { r = r.slice(); r[0] = r[jt]; r[jt] = ""; }
       }
       if (q && tg.indexOf("tong") < 0 && r.join(" ").toLowerCase().indexOf(q) < 0) return;
       hien++;
-      h += '<tr class="' + e(tg.join(" ")) + (k ? " bam" : "") + '"' + (k ? ' tabindex="0" data-k="' + e(k) + '"' : "") + ">" +
-        r.map(function (v, j) { return '<td class="' + e((cot[j] || ["", "w"])[1]) + (dai[j] ? " dai" : "") + '">' + e(String(v).replace(/ ⏎ /g, "\n")).replace(/\n/g, "<br>") + "</td>"; }).join("") + "</tr>";
+      h += '<tr class="' + e(tg.join(" ")) + (k ? " bam" : "") + (dotNay && dotNay[i] ? " hang-dot-nay" : "") + '"' + (k ? ' tabindex="0" data-k="' + e(k) + '"' : "") + ">" +
+        r.map(function (v, j) {
+          var dn = dotNay && j === cotDN ? dotNay[i] : null;
+          return '<td class="' + e((cot[j] || ["", "w"])[1]) + (dai[j] ? " dai" : "") + (dn ? " co-dot-nay" : "") + '">' +
+            e(String(v).replace(/ ⏎ /g, "\n")).replace(/\n/g, "<br>") +
+            (dn ? '<span class="dot-nay nhay">' + (dn > 0 ? "+" : "") + tien(dn) + " đợt này</span>" : "") + "</td>";
+        }).join("") + "</tr>";
     });
     h += "</tbody></table></div>";
     var nhan = dong.length + " dòng" + (q ? " · khớp " + hien : "") + (khoa.some(Boolean) ? " · bấm dòng có dấu › để xem chi tiết" : "") +
@@ -321,7 +355,7 @@ h2 { font-size: 1.02rem; }
     if (coSo.length) {
       khungTong = '<div class="cac-tong">' + coSo.map(function (t) {
         return '<div class="tong mot-tong"><div class="ten-tong">' + e(t.ten) + "</div>" +
-          t.so.map(function (s) { return cap(s[0] || "—", e(s[1])); }).join("") + "</div>";
+          t.so.map(function (s) { return cap(s[0] || "—", e(s[1]), s[2] ? "dong-dot-nay nhay" : ""); }).join("") + "</div>";
       }).join("") + "</div>";
     }
     return (b.ghi_chu ? '<div class="ghi-chu">' + e(b.ghi_chu) + "</div>" : "") + khungTong +
