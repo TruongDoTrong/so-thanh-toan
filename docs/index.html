@@ -189,7 +189,9 @@ h2 { font-size: 1.02rem; }
       <div class="nho">Xem đầy đủ hồ sơ zip thanh toán trên điện thoại / iPad · chỉ xem, không sửa</div>
     </div>
     <label class="nut" for="o-file">📂 Mở file zip</label>
-    <input id="o-file" type="file" accept=".zip,application/zip,application/x-zip-compressed">
+    <!-- KHONG dat accept: Android (file tai tu Zalo / email) hay bao file zip la loai "khong ro" nen bi lam mo,
+         khong chon duoc (nguoi dung bao 21/10/2026). Kiem dung ho so zip sau khi doc. -->
+    <input id="o-file" type="file">
   </header>
 
   <div id="bao"></div>
@@ -480,11 +482,26 @@ h2 { font-size: 1.02rem; }
       }) } };
   }
 
-  function docFile(file) {
-    if (!file) return;
-    if (typeof JSZip === "undefined") { bao("Không tải được bộ đọc file zip. Kiểm tra mạng rồi mở lại trang."); return; }
-    bao("Đang đọc " + e(file.name) + "…", "vang");
-    JSZip.loadAsync(file).then(function (z) {
+  // Android: doc HET file vao bo nho TRUOC (file lay tu Zalo / Tep la content://, xoa o chon file som thi co may
+  // khong doc duoc nua) - nguoi dung bao 21/10/2026 "ios ok nhung android co van de khi chon file zip"
+  function docBoNho(file) {
+    if (file.arrayBuffer) return file.arrayBuffer();
+    return new Promise(function (ok, hong) {
+      var r = new FileReader();
+      r.onload = function () { ok(r.result); };
+      r.onerror = function () { hong(r.error || new Error("khong-doc-duoc")); };
+      r.readAsArrayBuffer(file);
+    });
+  }
+
+  function docFile(file, xong) {
+    if (!file) { if (xong) xong(); return; }
+    if (typeof JSZip === "undefined") { bao("Không tải được bộ đọc file zip. Kiểm tra mạng rồi mở lại trang."); if (xong) xong(); return; }
+    bao("Đang đọc " + e(file.name || "file") + "…", "vang");
+    docBoNho(file).then(function (buf) {
+      if (xong) xong();
+      return JSZip.loadAsync(buf);
+    }).then(function (z) {
       var m = z.file("mobile.json"), t = z.file("thong_tin.json");
       if (m) return m.async("string").then(function (s) { return JSON.parse(s); });
       if (t) return t.async("string").then(function (s) { return tuThongTin(JSON.parse(s)); });
@@ -494,13 +511,18 @@ h2 { font-size: 1.02rem; }
       hien(d, false);
       if (!d.phan) bao("Hồ sơ lập bằng bản chương trình cũ: chưa có đủ các phần 1–6. Các đợt thanh toán bằng chương trình bản mới sẽ có file zip xem được đầy đủ.", "vang");
     }).catch(function (err) {
+      if (xong) xong();
+      var ten = e(file.name || "đã chọn");
       bao(err && err.message === "khong-phai-ho-so"
-        ? "File “" + e(file.name) + "” không phải hồ sơ thanh toán của chương trình (không có thong_tin.json). Chọn file zip trong thư mục XIN THANH TOAN."
-        : "Không đọc được file “" + e(file.name) + "”. File có thể bị hỏng khi tải về — tải lại rồi mở lại.");
+        ? "File “" + ten + "” không phải hồ sơ thanh toán của chương trình (không có thong_tin.json). Chọn file zip trong thư mục XIN THANH TOAN."
+        : "Không đọc được file “" + ten + "” như một file zip. Hãy chọn đúng file .zip thanh toán; nếu file tải từ Zalo / email bị lỗi thì tải lại rồi mở lại.");
     });
   }
 
-  $("o-file").addEventListener("change", function (ev) { docFile(ev.target.files && ev.target.files[0]); ev.target.value = ""; });
+  $("o-file").addEventListener("change", function (ev) {
+    var o = ev.target;
+    docFile(o.files && o.files[0], function () { try { o.value = ""; } catch (x) {} });
+  });
 
   // Người dùng báo 19/10/2026: mở link thấy SỐ LIỆU CŨ (hồ sơ nhớ từ lần trước / bảng ví dụ) -> mở trang
   // là trang TRỐNG, chỉ hiện số liệu của file zip vừa chọn; không nhớ hồ sơ trên máy nữa.
