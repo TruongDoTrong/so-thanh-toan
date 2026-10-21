@@ -74,6 +74,16 @@ table.bang td.w { min-width: 90px; max-width: 340px; }
 table.bang td.w.dai { min-width: 200px; }
 table.bang tr.tong td { background: var(--nhan-nhat); font-weight: 700; }
 table.bang tr.cong td { background: var(--nhan-nhat); font-weight: 700; }
+.ba-cot-khung { margin-top: 10px; overflow-x: auto; }
+table.ba-cot { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+table.ba-cot th, table.ba-cot td { padding: 6px 4px; border-top: 1px solid var(--vien); text-align: right; white-space: nowrap; }
+table.ba-cot th { font-weight: 600; color: var(--phu); font-size: 11.5px; }
+table.ba-cot th:first-child, table.ba-cot td:first-child { text-align: left; white-space: normal; }
+table.ba-cot tr.dam td { font-weight: 700; background: var(--nhan-nhat); }
+table.ba-cot tr.nay td { color: var(--dn); background: var(--dn-nen); font-weight: 700; }
+table.ba-cot tr.mo td { color: var(--phu); }
+table.ba-cot tr.am td { color: var(--loi); }
+.chip-dn { white-space: nowrap; display: inline-block; font-size: 10.5px; padding: 0 6px; border-radius: 8px; border: 1px solid currentColor; font-weight: 600; }
 table.bang tr.dot_nay td { background: var(--dn-nen); color: var(--dn); font-weight: 700; }
 table.bang tr.am td { color: var(--loi); }
 table.bang tr.mo td { color: var(--phu); }
@@ -102,7 +112,7 @@ table.bang tr.hang-dot-nay td:first-child { box-shadow: inset 5px 0 0 var(--dn),
 .cap.dong-dot-nay { background: var(--dn-nen); border-radius: 8px; padding: 4px 8px; margin: 2px -8px; }
 .cap.dong-dot-nay > span { color: var(--dn) !important; font-weight: 700; }
 @media (prefers-reduced-motion: no-preference) {
-  .nhay, table.bang tr.dot_nay td { animation: nhay 1.1s ease-in-out infinite; }
+  .nhay, table.bang tr.dot_nay td, table.ba-cot tr.nay td { animation: nhay 1.1s ease-in-out infinite; }
   @keyframes nhay { 50% { opacity: .3; } }
 }
 .cac-tong { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
@@ -259,15 +269,43 @@ h2 { font-size: 1.02rem; }
 
   function chuaCo(ten) { return '<div class="ds"><div class="trong">Hồ sơ này lập bằng bản chương trình cũ nên chưa có phần “' + ten + '”. Lập lại hồ sơ bằng bản mới để xem.</div></div>'; }
 
+  // Nguoi dung chot 21/10/2026 (anh mau): khoi tong la bang 3 cot Truoc thue · Thue VAT · Sau thue
+  // (thanh_toan.bang_tong_goi - y het cua so phan 5 va ban in). Bang chi tiet tung dong van de truoc thue.
+  function bangBaCot(hang) {
+    var so = function (v) { return v == null ? "" : tien(v); };
+    return '<div class="ba-cot-khung"><table class="ba-cot"><thead><tr><th>Khoản</th><th>Trước thuế</th><th>Thuế VAT</th><th>Sau thuế</th></tr></thead><tbody>' +
+      hang.map(function (r) {
+        var lop = r.loai === "nay" ? "nay" : (r.loai === "goi" || r.loai === "chua") ? "dam" : r.loai === "chua_tt" ? "mo" : "";
+        if (r.loai === "chua" && r.sau < -0.5) lop += " am";
+        return '<tr class="' + lop + '"><td>' + e(r.nhan) + (r.loai === "nay" ? ' <span class="chip-dn">xin thanh toán</span>' : "") + "</td><td>" +
+          so(r.truoc) + "</td><td>" + so(r.thue) + "</td><td>" + so(r.sau) + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+  }
+
+  function kyNayBaCot(k) {
+    var h = '<div class="tong">' +
+      '<div class="nho">' + (k.da_ghi_nhan === false ? "Xin thanh toán kỳ này" : "Thanh toán kỳ này") + "</div>" +
+      '<div class="so-lon">' + tien(k.lan_nay) + " <small>đ (sau thuế)</small></div>" + bangBaCot(k.bang_tong) + "</div>";
+    return h + kyNayPhanDuoi(k);
+  }
+
   function trangKyNay() {
     var k = duLieu.ky_nay;
     if (!k) return chuaCo("Kỳ này");
+    if (k.bang_tong) return kyNayBaCot(k);
     var lkSt = k.tong_luy_ke_sau_thue != null ? k.tong_luy_ke_sau_thue : k.tong_luy_ke;
+    // Chua thanh toan = gia tri goi SAU thue - tam ung - da tra - ky nay (nhu ban in, nguoi dung bao 21/10/2026).
+    // Ho so cu: tep ghi so tru tu luy ke (ra 0) -> tinh lai theo mot thue suat cua goi (gan dung)
+    var ts = Number(k.thue_suat) || 0, gtTr = Number(k.gia_tri_hop_dong) || 0;
+    var gtSt = k.gia_tri_sau_thue != null ? k.gia_tri_sau_thue : Math.round(gtTr * (1 + ts / 100));
+    var chua = k.gia_tri_sau_thue != null ? k.chua_thanh_toan
+      : gtSt - (Number(k.tam_ung) || 0) - (Number(k.da_thanh_toan) || 0) - (Number(k.lan_nay) || 0);
     var h = '<div class="tong">' +
       '<div class="nho">' + (k.da_ghi_nhan === false ? "Xin thanh toán kỳ này" : "Thanh toán kỳ này") + "</div>" +
       '<div class="so-lon">' + tien(k.lan_nay) + " <small>đ</small></div>" +
-      cap("Giá trị gói (giá vốn, trước thuế)", tien(k.gia_tri_hop_dong)) +
-      cap("Lũy kế khối lượng, trước thuế", tien(k.tong_luy_ke)) +
+      cap("Giá trị gói, trước thuế", tien(gtTr)) +
+      (k.thue_suat != null ? cap("Thuế VAT", tien(gtSt - gtTr)) + cap("Giá trị gói, SAU THUẾ", tien(gtSt), "dam") : "") +
+      cap("Lũy kế khối lượng, trước thuế", tien(k.tong_luy_ke), "ke") +
       (k.thue_suat != null ? cap("Lũy kế sau thuế (VAT " + kl(k.thue_suat) + "%)", tien(lkSt)) : "");
     // Nguoi dung chot 20/10/2026: tam ung = thanh toan dot 1, khong con tam ung rieng -> dong "Tam ung" chi hien
     // khi so lieu cu co tien tam ung (nhu khung Tong hop goi thau tren may tinh)
@@ -277,7 +315,12 @@ h2 { font-size: 1.02rem; }
     cacDong.push(["Kỳ này", k.lan_nay]);
     cacDong.forEach(function (r, i) { h += cap(r[0], tien(r[1]), i === 0 ? "ke" : ""); });
     h +=
-      cap("Chưa thanh toán", tien(k.chua_thanh_toan), "dam ke" + (k.chua_thanh_toan < -0.5 ? " am" : "")) + "</div>";
+      cap("Chưa thanh toán (giá trị gói sau thuế − đã trả − kỳ này)", tien(chua), "dam ke" + (chua < -0.5 ? " am" : "")) + "</div>";
+    return h + kyNayPhanDuoi(k);
+  }
+
+  function kyNayPhanDuoi(k) {
+    var h = "";
     if (k.goi_bo) {
       var b = k.goi_bo;
       h += "<h2>Gói bố “" + e(b.cha) + "”</h2><div class=\"ds\">";
@@ -302,6 +345,8 @@ h2 { font-size: 1.02rem; }
   var chon = {}, chiTiet = [], loc = "";
 
   function veBang(b, ma) {
+    // bang tong 3 cot truoc thue · thue · sau thue cua goi (21/10/2026): hien gon, khong phai vuot ngang
+    if (b.ba_cot) return bangBaCot(b.ba_cot);
     var cot = b.cot || [], dong = b.dong || [], tag = b.tag || [], khoa = b.khoa || [];
     var dai = cot.map(function (c) { return /nội dung|hạng mục|gói thầu|lý do|nhóm|phạm vi|ghi chú|nguồn|trạng thái/i.test(c[0]); });
     var q = loc.trim().toLowerCase(), hien = 0;
@@ -470,7 +515,7 @@ h2 { font-size: 1.02rem; }
       goi: tt.goi, dot: tt.dot, ngay: tt.ngay, tao_luc: tt.tao_luc, da_ghi_nhan: tt.da_ghi_nhan !== false,
       lan_nay: tt.lan_nay, tong_luy_ke: tt.tong_luy_ke, tong_luy_ke_sau_thue: tt.tong_luy_ke_sau_thue, thue_suat: tt.thue_suat,
       tam_ung: tt.tam_ung || 0, da_thanh_toan: tt.da_thanh_toan || 0, chua_thanh_toan: tt.chua_thanh_toan,
-      gia_tri_hop_dong: tt.gia_tri_hop_dong, cac_ky_da_tra: tt.cac_ky_da_tra || [], goi_bo: tt.goi_bo || null,
+      gia_tri_hop_dong: tt.gia_tri_hop_dong, gia_tri_sau_thue: tt.gia_tri_sau_thue, cac_ky_da_tra: tt.cac_ky_da_tra || [], goi_bo: tt.goi_bo || null,
       dong: (tt.dong || []).map(function (x) {
         var dg = [x.dg_vl || 0, x.dg_nc || 0, x.dg_may || 0], lk = x.kl_luy_ke || 0, tr = x.kl_truoc || 0;
         var ttHd = x.thanh_tien_hd != null ? x.thanh_tien_hd : tienBaPhan(x.kl_hd || 0, dg[0], dg[1], dg[2]);
